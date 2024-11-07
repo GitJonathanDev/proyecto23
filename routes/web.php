@@ -7,6 +7,8 @@ use App\Http\Controllers\TipoUsuarioController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EncargadoController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\ProveedorController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -67,4 +69,23 @@ Route::prefix('usuario')->group(function () {
         Route::put('update/{carnetIdentidad}', [EncargadoController::class, 'update'])->name('encargado.update');
         Route::delete('eliminar/{carnetIdentidad}', [EncargadoController::class, 'destroy'])->name('encargado.destroy');
         Route::post('ci-ya-existe', [EncargadoController::class, 'ciYaExiste'])->name('ci-ya-existes');
+    });
+
+    Route::prefix('categoria')->group(function () {
+        Route::get('index', [CategoriaController::class, 'index'])->name('categoria.index');
+        Route::get('index2', [CategoriaController::class, 'index2'])->name('categoria.index2');
+        Route::get('create', [CategoriaController::class, 'create'])->name('categoria.create');
+        Route::post('store', [CategoriaController::class, 'store'])->name('categoria.store');
+        Route::get('edit/{codCategoria}', [CategoriaController::class, 'edit'])->name('categoria.edit');
+        Route::put('update/{codCategoria}', [CategoriaController::class, 'update'])->name('categoria.update');
+        Route::delete('eliminar/{codCategoria}', [CategoriaController::class, 'destroy'])->name('categoria.destroy');
+    });
+
+    Route::prefix('proveedor')->group(function () {
+        Route::get('index', [ProveedorController::class, 'index'])->name('proveedor.index');
+        Route::get('create', [ProveedorController::class, 'create'])->name('proveedor.create');
+        Route::post('store', [ProveedorController::class, 'store'])->name('proveedor.store');
+        Route::get('edit/{codProveedor}', [ProveedorController::class, 'edit'])->name('proveedor.edit');
+        Route::put('update/{codProveedor}', [ProveedorController::class, 'update'])->name('proveedor.update');
+        Route::delete('eliminar/{codProveedor}', [ProveedorController::class, 'destroy'])->name('proveedor.destroy');
     });
