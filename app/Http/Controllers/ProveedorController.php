@@ -10,15 +10,73 @@ class ProveedorController extends Controller
 {
     public function index(Request $request)
     {
-        $criterio = $request->input('criterio', 'nombre'); // Por defecto buscar por 'nombre'
+        $criterio = $request->input('criterio', 'nombre'); 
         $buscar = $request->input('buscar', '');
-
-        // Obtener proveedores con paginación y filtro de búsqueda
         $proveedores = Proveedor::where($criterio, 'like', '%' . $buscar . '%')
             ->paginate(10);
 
         return Inertia::render('Proveedor/Index', [
             'proveedores' => $proveedores
         ]);
+    }
+    public function create()
+    {
+        return Inertia::render('Proveedor/Create');
+    }
+
+    /**
+     * Almacena un nuevo proveedor en la base de datos.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'required|string|max:255',
+            'telefono' => 'required|string|max:15',
+        ]);
+
+        Proveedor::create($request->all());
+
+        return redirect()->route('proveedor.index')->with('success', 'Proveedor registrado exitosamente.');
+    }
+
+    /**
+     * Muestra el formulario para editar un proveedor.
+     */
+    public function edit($id)
+    {
+        $proveedor = Proveedor::findOrFail($id);
+
+        return Inertia::render('Proveedores/Edit', [
+            'proveedor' => $proveedor
+        ]);
+    }
+
+    /**
+     * Actualiza un proveedor en la base de datos.
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'required|string|max:255',
+            'telefono' => 'required|string|max:15',
+        ]);
+
+        $proveedor = Proveedor::findOrFail($id);
+        $proveedor->update($request->all());
+
+        return redirect()->route('proveedor.index')->with('success', 'Proveedor actualizado exitosamente.');
+    }
+
+    /**
+     * Elimina un proveedor de la base de datos.
+     */
+    public function destroy($id)
+    {
+        $proveedor = Proveedor::findOrFail($id);
+        $proveedor->delete();
+
+        return redirect()->route('proveedor.index')->with('success', 'Proveedor eliminado exitosamente.');
     }
 }
