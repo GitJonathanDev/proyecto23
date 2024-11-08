@@ -9,6 +9,10 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EncargadoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\HorarioController;
+use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\PrecioServicioController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -89,3 +93,40 @@ Route::prefix('usuario')->group(function () {
         Route::put('update/{codProveedor}', [ProveedorController::class, 'update'])->name('proveedor.update');
         Route::delete('eliminar/{codProveedor}', [ProveedorController::class, 'destroy'])->name('proveedor.destroy');
     });
+    Route::prefix('producto')->group(function () {
+        Route::get('index', [ProductoController::class, 'index'])->name('producto.index');
+        Route::get('create', [ProductoController::class, 'create'])->name('producto.create');
+        Route::post('store', [ProductoController::class, 'store'])->name('producto.store');
+        Route::get('edit/{codProducto}', [ProductoController::class, 'edit'])->name('producto.edit');
+        Route::put('update/{codProducto}', [ProductoController::class, 'update'])->name('producto.update');
+        Route::delete('eliminar/{codProducto}', [ProductoController::class, 'destroy'])->name('producto.destroy');
+        Route::get('buscar', [ProductoController::class, 'buscar'])->name('producto.buscar');
+    });
+
+    Route::prefix('horario')->group(function () {
+        Route::get('index', [HorarioController::class, 'index'])->name('horario.index');
+        Route::get('create', [HorarioController::class, 'create'])->name('horario.create');
+        Route::post('store', [HorarioController::class, 'store'])->name('horario.store');
+        Route::get('edit/{codHorario}', [HorarioController::class, 'edit'])->name('horario.edit');
+        Route::put('update/{codHorario}', [HorarioController::class, 'update'])->name('horario.update');
+        Route::delete('eliminar/{codHorario}', [HorarioController::class, 'destroy'])->name('horario.destroy');
+    });
+
+    // Gestionar servicio
+    Route::prefix('servicio')->group(function () {
+        Route::get('index', [ServicioController::class, 'index'])->name('servicio.index');
+        Route::get('create', [ServicioController::class, 'create'])->name('servicio.create');
+        Route::post('store', [ServicioController::class, 'store'])->name('servicio.store');
+        Route::get('edit/{codServicio}', [ServicioController::class, 'edit'])->name('servicio.edit');
+        Route::put('update/{codServicio}', [ServicioController::class, 'update'])->name('servicio.update');
+        Route::delete('eliminar/{codServicio}', [ServicioController::class, 'destroy'])->name('servicio.destroy');
+    });
+    Route::prefix('precioServicio')->group(function () {
+        Route::get('index', [PrecioServicioController::class, 'index'])->name('precioServicio.index');
+        Route::get('create', [PrecioServicioController::class, 'create'])->name('precioServicio.create');
+        Route::post('store', [PrecioServicioController::class, 'store'])->name('precioServicio.store');
+        Route::get('edit/{codPrecioServicio}', [PrecioServicioController::class, 'edit'])->name('precioServicio.edit');
+        Route::put('update/{codPrecioServicio}', [PrecioServicioController::class, 'update'])->name('precioServicio.update');
+        Route::delete('eliminar/{codPrecioServicio}', [PrecioServicioController::class, 'destroy'])->name('precioServicio.destroy');
+    });
+    

@@ -24,30 +24,22 @@ class ProveedorController extends Controller
         return Inertia::render('Proveedor/Create');
     }
 
-    /**
-     * Almacena un nuevo proveedor en la base de datos.
-     */
     public function store(Request $request)
     {
         $request->validate([
+            'codProveedor' => 'required',
             'nombre' => 'required|string|max:255',
             'direccion' => 'required|string|max:255',
             'telefono' => 'required|string|max:15',
         ]);
-
         Proveedor::create($request->all());
-
         return redirect()->route('proveedor.index')->with('success', 'Proveedor registrado exitosamente.');
     }
-
-    /**
-     * Muestra el formulario para editar un proveedor.
-     */
     public function edit($id)
     {
         $proveedor = Proveedor::findOrFail($id);
 
-        return Inertia::render('Proveedores/Edit', [
+        return Inertia::render('Proveedor/Edit', [
             'proveedor' => $proveedor
         ]);
     }
@@ -60,7 +52,7 @@ class ProveedorController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'direccion' => 'required|string|max:255',
-            'telefono' => 'required|string|max:15',
+            'telefono' => 'required|max:10',
         ]);
 
         $proveedor = Proveedor::findOrFail($id);

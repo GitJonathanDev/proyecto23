@@ -20,13 +20,13 @@ class CategoriaController extends Controller
             })
             ->paginate(10);
 
-        return Inertia::render('Categorias/Index', [
+        return Inertia::render('Categoria/Index', [
             'categorias' => $categorias,
         ]);
     }
     public function create()
     {
-        return Inertia::render('Categorias/Create');
+        return Inertia::render('Categoria/Create');
     }
 
     public function store(Request $request)
