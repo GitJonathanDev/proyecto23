@@ -4,8 +4,8 @@ import { router, Link } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
-// Propiedades recibidas desde Inertia
 const props = defineProps({
     tipoUsuarios: Object
 });
@@ -30,6 +30,7 @@ const deleteTipoUsuario = () => {
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Gestionar Tipos de Usuario">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -126,7 +127,6 @@ const deleteTipoUsuario = () => {
 </template>
 
 <style scoped>
-/* Estilo para mejorar la apariencia de los botones y tablas */
 .table-auto th, .table-auto td {
     text-align: left;
     vertical-align: middle;
@@ -197,5 +197,7 @@ const deleteTipoUsuario = () => {
 .btn-secondary:hover {
     background-color: #D1D5DB;
 }
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
 </style>
-

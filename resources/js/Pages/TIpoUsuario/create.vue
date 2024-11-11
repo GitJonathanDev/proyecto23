@@ -5,6 +5,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Recibiendo propiedades desde Inertia
 const props = defineProps({
@@ -41,6 +42,7 @@ const submit = () => {
     });
 };
 
+
 // Verificar la validación del campo al cargar y al escribir
 watch(() => form.descripcion, () => {
     validateForm();
@@ -48,6 +50,7 @@ watch(() => form.descripcion, () => {
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Registrar Tipo de Usuario">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -100,3 +103,8 @@ watch(() => form.descripcion, () => {
         </div>
     </AppLayout>
 </template>
+<style scoped>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>

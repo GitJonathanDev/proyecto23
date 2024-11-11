@@ -1,11 +1,12 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { useForm, router } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { defineProps } from 'vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Recibiendo propiedades desde Inertia
 const props = defineProps({
@@ -27,48 +28,27 @@ const submitButton = ref(null);
 const tipoRow = ref(null);
 const mensajeTipo = ref(null);
 
-// Función para actualizar los tipos según el servicio seleccionado
-const actualizarTipos = () => {
+// Computed para filtrar los tipos disponibles según el servicio seleccionado
+const tiposDisponiblesFiltrados = computed(() => {
     const servicioId = form.codServicioF;
-    if (servicioId) {
-        tipoRow.value.style.display = 'block';
+    if (!servicioId) return [];
 
-        // Obtener los tipos registrados para el servicio seleccionado
-        const tiposRegistradosServicio = props.tiposRegistrados[servicioId] || [];
+    const tiposRegistradosServicio = props.tiposRegistrados[servicioId] || [];
+    return props.tiposDisponibles.filter(tipo => !tiposRegistradosServicio.includes(tipo));
+});
 
-        // Filtrar los tipos disponibles para excluir los tipos registrados
-        const tiposMostrar = props.tiposDisponibles.filter(tipo => !tiposRegistradosServicio.includes(tipo));
+// Computed para verificar si se debe mostrar el mensaje "No hay tipos disponibles"
+const mostrarMensajeTipo = computed(() => tiposDisponiblesFiltrados.value.length === 0);
 
-        // Actualizar las opciones de tipo
-        form.tipo = ''; // Resetear el tipo seleccionado
-        if (tiposMostrar.length === 0) {
-            mensajeTipo.value.classList.remove('d-none');
-        } else {
-            mensajeTipo.value.classList.add('d-none');
-        }
-
-        return tiposMostrar;
-    } else {
-        tipoRow.value.style.display = 'none';
-        mensajeTipo.value.classList.add('d-none');
-    }
-    return [];
-};
-
-// Lógica de validación
-const validateCodServicioF = () => {
-    return form.codServicioF !== '';
-};
-
-const validateTipo = () => {
-    return form.tipo !== '';
-};
-
+// Lógica de validación de los campos
+const validateCodServicioF = () => form.codServicioF !== '';
+const validateTipo = () => form.tipo !== '';
 const validatePrecio = () => {
     const precio = parseFloat(form.precio);
     return !isNaN(precio) && precio > 0;
 };
 
+// Validar el formulario en general
 const validateForm = () => {
     const isCodServicioFValid = validateCodServicioF();
     const isTipoValid = validateTipo();
@@ -88,19 +68,26 @@ const submit = () => {
 
 // Al montar el componente, inicializamos las opciones de tipo
 onMounted(() => {
-    actualizarTipos();
+    // Asegura que el formulario se valide correctamente
+    validateForm();
 });
 
-// Reaccionamos a los cambios en los campos
-watch(() => form.codServicioF, actualizarTipos);
+// Reaccionamos a los cambios en el campo `codServicioF` para actualizar los tipos disponibles
+watch(() => form.codServicioF, (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+        form.tipo = ''; // Limpiar el campo tipo cuando se cambia el servicio
+        validateForm(); // Revalidar el formulario
+    }
+});
 watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateForm);
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Registrar Precio de Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Registrar Precio de Servicio
+                Registrar
             </h2>
         </template>
 
@@ -130,8 +117,8 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
                                 </select>
                             </div>
 
-                            <!-- Selección de Tipo (desplegado dinámicamente) -->
-                            <div class="mb-4" ref="tipoRow" style="display: none;">
+                            <!-- Selección de Tipo -->
+                            <div class="mb-4" ref="tipoRow" v-show="form.codServicioF">
                                 <InputLabel for="tipo" value="Tipo" />
                                 <InputError :message="errors.tipo" />
                                 <select
@@ -142,14 +129,14 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
                                 >
                                     <option value="">Seleccione un tipo</option>
                                     <option
-                                        v-for="tipo in actualizarTipos()"
+                                        v-for="tipo in tiposDisponiblesFiltrados"
                                         :key="tipo"
                                         :value="tipo"
                                     >
                                         {{ tipo }}
                                     </option>
                                 </select>
-                                <div ref="mensajeTipo" class="invalid-feedback d-none">
+                                <div v-show="mostrarMensajeTipo" class="invalid-feedback">
                                     No hay tipos disponibles para seleccionar.
                                 </div>
                             </div>
@@ -168,8 +155,6 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
                                     required
                                 />
                             </div>
-
-                            <!-- Botones -->
                             <div class="text-center">
                                 <Link href="{{ route('precioServicio.index') }}" class="btn btn-secondary me-3">
                                     <i class="fas fa-arrow-left"></i> Atrás
@@ -193,5 +178,8 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
 <style scoped>
 .invalid-feedback {
     color: red;
+}
+.py-12 {
+  margin-top: calc(60px + 1rem); 
 }
 </style>

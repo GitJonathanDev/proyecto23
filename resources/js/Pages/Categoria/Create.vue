@@ -5,6 +5,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 const props = defineProps({
     errors: Object,
@@ -37,6 +38,7 @@ watch(() => form.nombre, () => {
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Registrar Categoría">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -88,3 +90,8 @@ watch(() => form.nombre, () => {
         </div>
     </AppLayout>
 </template>
+<style>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>

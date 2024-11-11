@@ -4,27 +4,24 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
-// Recibimos los datos del tipo de usuario y errores del padre
 const props = defineProps(['tipoUsuario', 'errors']);
-
-// Inicializamos el formulario con los datos del tipo de usuario
 const form = useForm({
     descripcion: props.tipoUsuario?.descripcion || '',
 });
 
-// Función para manejar el envío del formulario
 const submit = () => {
     form.put(route('tipoUsuario.update', props.tipoUsuario.codTipoUsuario));
 };
 
-// Validación en el cliente
 const validateDescripcion = () => {
     return form.descripcion.length > 2 && form.descripcion.length < 21;
 };
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Modificar Tipo de Usuario">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -84,3 +81,8 @@ const validateDescripcion = () => {
         </div>
     </AppLayout>
 </template>
+<style scoped>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>

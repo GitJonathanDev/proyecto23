@@ -4,17 +4,15 @@ import { router, Link } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
-// Propiedades recibidas desde Inertia
 const props = defineProps({
     usuarios: Object
 });
 
-// Estado para manejar la visibilidad del modal y el usuario seleccionado
 const showModal = ref(false);
 const selectedUsuario = ref(null);
 
-// Función para abrir el modal de confirmación de eliminación
 const confirmDeleteUsuario = (item) => {
     selectedUsuario.value = item;
     showModal.value = true;
@@ -28,7 +26,6 @@ const deleteUsuario = () => {
     }
 };
 
-// Estado para la búsqueda
 const searchTerm = ref('');
 const searchCriteria = ref('');
 
@@ -46,6 +43,7 @@ const handleSearch = () => {
 </script>
 
 <template>
+     <plantillanav/>
     <AppLayout title="Gestionar Usuarios">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -59,15 +57,12 @@ const handleSearch = () => {
                     <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
                         <h1 class="text-2xl font-bold text-center mb-6">Lista de Usuarios</h1>
 
-                        <!-- Contenedor de los botones (Nuevo usuario y búsqueda) -->
                         <div class="flex justify-between items-center mb-6">
                             <!-- Nuevo Usuario -->
                             <Link :href="route('usuario.create')" class="btn btn-primary inline-flex items-center space-x-2">
                                 <i class="fas fa-user-plus"></i>
-                                <span>Registrar Usuario</span>
+                                <span>Registrar</span>
                             </Link>
-
-                            <!-- Formulario de búsqueda -->
                             <form @submit.prevent="handleSearch" class="flex space-x-2">
                                 <select v-model="searchCriteria" class="form-select">
                                     <option value="" disabled selected>Seleccionar criterio</option>
@@ -101,7 +96,7 @@ const handleSearch = () => {
                                         <td class="p-3">{{ usuario.nombreUsuario }}</td>
                                         <td class="p-3">{{ usuario.email }}</td>
                                         <td class="p-3">********</td>
-                                        <td class="p-3">{{ usuario.tipoUsuario.descripcion }}</td>
+                                        <td class="p-3">{{ usuario.tipoUsuario?.descripcion || 'N/A' }}</td>
                                         <td class="p-3 text-center">
                                             <!-- Editar -->
                                             <Link :href="route('usuario.edit', usuario.codUsuario)" class="btn btn-warning btn-sm mx-1">
@@ -223,5 +218,8 @@ const handleSearch = () => {
 
 .btn-secondary:hover {
     background-color: #D1D5DB;
+}
+.py-12 {
+  margin-top: calc(60px + 1rem); 
 }
 </style>

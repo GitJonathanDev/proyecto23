@@ -13,6 +13,10 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\PrecioServicioController;
+use App\Http\Controllers\CompraController;
+use App\Http\Controllers\Auth\CustomLoginController;
+use App\Http\Controllers\MembresiaController;
+use App\Http\Controllers\VentaController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -23,6 +27,7 @@ Route::get('/', function () {
     ]);
 });
 
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -32,6 +37,12 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 });
+Route::middleware('auth')->group(function () {
+    Route::get('/cliente/dashboard', [ClientController::class, 'dashboard'])->name('cliente');
+    Route::get('/encargado/dashboard', [ManagerController::class, 'dashboard'])->name('encargado');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin');
+});
+
 
 Route::prefix('tipoUsuario')->group(function () {
     Route::get('index', [TipoUsuarioController::class, 'index'])->name('tipoUsuario.index');
@@ -129,4 +140,33 @@ Route::prefix('usuario')->group(function () {
         Route::put('update/{codPrecioServicio}', [PrecioServicioController::class, 'update'])->name('precioServicio.update');
         Route::delete('eliminar/{codPrecioServicio}', [PrecioServicioController::class, 'destroy'])->name('precioServicio.destroy');
     });
-    
+    Route::prefix('compra')->group(function () {
+        Route::get('index', [CompraController::class, 'index'])->name('compra.index');
+        Route::get('create', [CompraController::class, 'create'])->name('compra.create');
+        Route::post('store', [CompraController::class, 'store'])->name('compra.store');
+        Route::get('{codCompra}', [CompraController::class, 'show'])->name('compra.show');
+        Route::get('edit/{codCompra}', [CompraController::class, 'edit'])->name('compra.edit');
+        Route::put('update/{codCompra}', [CompraController::class, 'update'])->name('compra.update');
+        Route::delete('eliminar/{codCompra}', [CompraController::class, 'destroy'])->name('compra.destroy');
+        Route::get('/productos/buscar', [CompraController::class, 'buscarProductos'])->name('productos.buscar');
+    });
+
+    Route::prefix('membresia')->group(function() {
+        Route::get('index', [MembresiaController::class, 'index'])->name('membresia.index');
+        Route::get('/create', [MembresiaController::class, 'create'])->name('membresia.create');
+        Route::get('show/{membresia}', [MembresiaController::class, 'show'])->name('membresia.show');
+        Route::delete('destroy/{membresia}', [MembresiaController::class, 'destroy'])->name('membresia.destroy');
+    });  
+
+
+Route::prefix('venta')->group(function () {
+    Route::get('/index', [VentaController::class, 'index'])->name('venta.index');
+    Route::get('create', [VentaController::class, 'create'])->name('venta.create');
+    Route::get('{codVenta}', [VentaController::class, 'show'])->name('venta.show');
+    Route::post('/store', [VentaController::class, 'store'])->name('venta.store');
+    Route::put('update/{codVenta}', [VentaController::class, 'update'])->name('venta.update');
+    Route::delete('destroy/{codVenta}', [VentaController::class, 'destroy'])->name('venta.destroy');
+});
+
+
+Route::post('/login', [CustomLoginController::class, 'login'])->name('login');

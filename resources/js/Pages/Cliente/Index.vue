@@ -1,4 +1,5 @@
 <template>
+  <plantillanav/>
     <AppLayout title="Gestionar Clientes">
       <template #header>
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -17,7 +18,7 @@
                 <!-- Registrar Cliente -->
                 <Link :href="route('cliente.create')" class="btn btn-primary inline-flex items-center space-x-2">
                   <i class="fas fa-plus"></i>
-                  <span>Registrar cliente</span>
+                  <span>Registrar</span>
                 </Link>
   
                 <!-- Formulario de búsqueda -->
@@ -119,6 +120,7 @@
   import PrimaryButton from '@/Components/PrimaryButton.vue';
   import DialogModal from '@/Components/DialogModal.vue';
   import { usePage } from '@inertiajs/vue3';
+  import plantillanav from '@/Layouts/plantillanav.vue';
   
   const props = defineProps({
     clientes: Object, // Propiedad para recibir los clientes paginados
@@ -227,5 +229,8 @@
   .btn-secondary:hover {
     background-color: #D1D5DB;
   }
+  .py-12 {
+  margin-top: calc(60px + 1rem); 
+}
   </style>
   

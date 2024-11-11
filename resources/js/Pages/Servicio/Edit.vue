@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Recibimos los datos del servicio, horarios y errores del padre
 const props = defineProps(['servicio', 'horarios', 'errors']);
@@ -34,6 +35,7 @@ const validateCodHorarioF = () => {
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Modificar Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -96,7 +98,7 @@ const validateCodHorarioF = () => {
 
                             <div class="text-center mt-4">
                                 <Link 
-                                    href="{{ route('servicio.index') }}" 
+                                    :href=" route('servicio.index')" 
                                     class="btn btn-secondary me-2"
                                 >
                                     <i class="fas fa-arrow-left"></i> Atrás
@@ -116,3 +118,8 @@ const validateCodHorarioF = () => {
         </div>
     </AppLayout>
 </template>
+<style>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>

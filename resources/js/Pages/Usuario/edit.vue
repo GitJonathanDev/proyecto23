@@ -5,6 +5,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Props: recibir los datos del usuario y errores desde el controlador
 const props = defineProps({
@@ -15,21 +16,25 @@ const props = defineProps({
 
 // Formulario reactivo usando useForm
 const form = useForm({
-  nombreUsuario: props.usuario?.nombreUsuario || '',
+  name: props.usuario?.name || '', 
   email: props.usuario?.email || '',
-  password: '',
+  password: props.usuario?.password || '',  // Asegúrate de que esto tenga el valor correcto
   codTipoUsuarioF: props.usuario?.codTipoUsuarioF || '',
 });
 
+
+// Propiedad reactiva para mostrar u ocultar la contraseña
+const showPassword = ref(false);
+
 // Validaciones en los campos
-const isNombreUsuarioValid = computed(() => form.nombreUsuario.length > 3);
+const isNameValid = computed(() => form.name.length > 3);  // Cambié 'isNombreUsuarioValid' por 'isNameValid'
 const isEmailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email));
 const isPasswordValid = computed(() => form.password.length >= 8 || form.password === '');
 const isCodTipoUsuarioFValid = computed(() => form.codTipoUsuarioF !== '');
 
 // Habilitar o deshabilitar el botón de envío
 const isFormValid = computed(() => 
-  isNombreUsuarioValid.value &&
+  isNameValid.value &&
   isEmailValid.value &&
   isPasswordValid.value &&
   isCodTipoUsuarioFValid.value
@@ -46,6 +51,7 @@ const submit = () => {
 </script>
 
 <template>
+  <plantillanav/>
   <AppLayout title="Modificar Usuario">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight text-center">
@@ -66,17 +72,17 @@ const submit = () => {
             <form @submit.prevent="submit">
               <!-- Nombre de usuario -->
               <div class="mb-3">
-                <InputLabel for="nombreUsuario" value="Nombre" />
-                <InputError :message="form.errors.nombreUsuario" />
+                <InputLabel for="name" value="Nombre" /> 
+                <InputError :message="form.errors.name" />  
                 <TextInput
-                  v-model="form.nombreUsuario"
+                  v-model="form.name"  
                   type="text"
-                  id="nombreUsuario"
+                  id="name"  
                   class="form-control"
                   placeholder="Ingrese el nombre de usuario"
                   required
                 />
-                <div v-if="!isNombreUsuarioValid && form.nombreUsuario.length > 0" class="text-red-500 text-sm">
+                <div v-if="!isNameValid && form.name.length > 0" class="text-red-500 text-sm">
                   * El nombre de usuario debe tener más de 3 caracteres.
                 </div>
               </div>
@@ -98,14 +104,14 @@ const submit = () => {
                 </div>
               </div>
 
-              <!-- Contraseña -->
               <div class="mb-3">
                 <InputLabel for="password" value="Contraseña" />
                 <InputError :message="form.errors.password" />
                 <div class="input-group">
+                  <!-- Cambia el tipo a 'text' si showPassword es verdadero -->
                   <TextInput
                     v-model="form.password"
-                    type="password"
+                    :type="showPassword ? 'text' : 'password'"
                     id="password"
                     class="form-control"
                     placeholder="Ingrese la contraseña"
@@ -113,15 +119,16 @@ const submit = () => {
                   <button
                     type="button"
                     class="btn btn-outline-secondary"
-                    @click="form.password = form.password ? '' : form.password"
+                    @click="showPassword = !showPassword"
                   >
-                    <i class="fas fa-eye"></i>
+                    <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                   </button>
                 </div>
                 <div v-if="!isPasswordValid && form.password.length > 0" class="text-red-500 text-sm">
                   * La contraseña debe tener al menos 8 caracteres.
                 </div>
               </div>
+
 
               <!-- Tipo de Usuario -->
               <div class="mb-3">
@@ -170,3 +177,9 @@ const submit = () => {
     </div>
   </AppLayout>
 </template>
+
+<style scoped>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>

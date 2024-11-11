@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { router } from '@inertiajs/vue3';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 const props = defineProps({
     preciosServicio: Object, 
@@ -38,6 +39,7 @@ const submitSearch = () => {
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Gestionar Precios de Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -54,7 +56,7 @@ const submitSearch = () => {
                         <div class="flex justify-between items-center mb-6">
                             <Link :href="route('precioServicio.create')" class="btn btn-primary inline-flex items-center space-x-2">
                                 <i class="fas fa-plus"></i>
-                                <span>Registrar Precio de Servicio</span>
+                                <span>Registrar</span>
                             </Link>
                             <form @submit.prevent="submitSearch" class="flex space-x-2">
                                 <select v-model="form.criterio" class="form-select">
@@ -188,5 +190,8 @@ const submitSearch = () => {
 
 .btn-secondary:hover {
     background-color: #D1D5DB;
+}
+.py-12 {
+  margin-top: calc(60px + 1rem); 
 }
 </style>

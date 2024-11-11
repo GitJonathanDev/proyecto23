@@ -8,6 +8,8 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 
 const form = useForm({
+    carnet_identidad: '',  
+    nombre: '',
     name: '',
     apellido_paterno: '',
     apellido_materno: '',
@@ -35,19 +37,33 @@ const submit = () => {
             <h2 class="text-center text-2xl font-bold mb-6">REGISTRAR</h2>
 
             <form @submit.prevent="submit">
-                <!-- Campo Nombre -->
+                <!-- Campo Carnet de Identidad -->
                 <div>
-                    <InputLabel for="Nombre" value="Nombre" />
+                    <InputLabel for="carnet_identidad" value="Carnet de Identidad" />
                     <TextInput
-                        id="Nombre"
-                        v-model="form.name"
+                        id="carnet_identidad"
+                        v-model="form.carnet_identidad"
+                        type="text"
+                        class="input-field"
+                        required
+                        autocomplete="off"
+                    />
+                    <InputError class="mt-2" :message="form.errors.carnet_identidad" />
+                </div>
+
+                <!-- Campo Nombre -->
+                <div class="mt-4">
+                    <InputLabel for="nombre" value="Nombre" />
+                    <TextInput
+                        id="nombre"
+                        v-model="form.nombre"
                         type="text"
                         class="input-field"
                         required
                         autofocus
-                        autocomplete="Nombre"
+                        autocomplete="nombre"
                     />
-                    <InputError class="mt-2" :message="form.errors.Nombre" />
+                    <InputError class="mt-2" :message="form.errors.nombre" />
                 </div>
 
                 <!-- Campo Apellido Paterno -->
@@ -106,6 +122,21 @@ const submit = () => {
                     <InputError class="mt-2" :message="form.errors.telefono" />
                 </div>
 
+                <!-- Campo Nombre de Usuario -->
+                <div class="mt-4">
+                    <InputLabel for="name" value="Nombre de usuario" />
+                    <TextInput
+                        id="name"
+                        v-model="form.name"   
+                        type="text"
+                        class="input-field"
+                        required
+                        autofocus
+                        autocomplete="name"
+                    />
+                    <InputError class="mt-2" :message="form.errors.name" />
+                </div>
+
                 <!-- Campo Edad -->
                 <div class="mt-4">
                     <InputLabel for="edad" value="Edad" />
@@ -119,19 +150,6 @@ const submit = () => {
                     <InputError class="mt-2" :message="form.errors.edad" />
                 </div>
 
-                <div>
-                    <InputLabel for="name" value="Nombre de Usuario" />
-                    <TextInput
-                        id="name"
-                        v-model="form.name"
-                        type="text"
-                        class="input-field"
-                        required
-                        autofocus
-                        autocomplete="name"
-                    />
-                    <InputError class="mt-2" :message="form.errors.name" />
-                </div>
                 <!-- Campo Correo Electrónico -->
                 <div class="mt-4">
                     <InputLabel for="email" value="Correo Electrónico" />

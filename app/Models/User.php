@@ -20,45 +20,30 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $primaryKey = 'codUsuario'; 
+    protected $keyType = 'int';
+    public $incrementing = true; 
     protected $fillable = [
-        'nombreUsuario',
+        'name',
         'email',
         'password',
         'estadoBloqueado',
         'codTipoUsuarioF', 
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
     ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
+    public function tipoUsuario()
+    {
+        return $this->belongsTo(TipoUsuario::class, 'codTipoUsuarioF'); 
+    }
     protected $appends = [
         'profile_photo_url',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [

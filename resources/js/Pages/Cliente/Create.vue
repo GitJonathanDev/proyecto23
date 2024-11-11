@@ -1,4 +1,5 @@
 <template>
+  <plantillanav/>
     <div class="container mx-auto p-4">
       <h1 class="text-3xl font-semibold text-center mb-6">Registrar Cliente</h1>
   
@@ -88,18 +89,28 @@
   
         <!-- Botones -->
         <div class="flex justify-center space-x-4">
-          <router-link to="/clientes" class="inline-block px-4 py-2 text-sm font-medium text-white bg-gray-600 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
-            <i class="fas fa-arrow-left"></i> Atrás
-          </router-link>
-          <button type="submit" class="inline-block px-6 py-3 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50" :disabled="formInvalid">
-            <i class="fas fa-save"></i> Guardar
-          </button>
+          <Link :href=" route('cliente.index') " class="btn btn-secondary me-3">
+               <i class="fas fa-arrow-left"></i> Atrás
+          </Link>
+          <PrimaryButton 
+              ref="submitButton"
+              class="mt-4"
+          >
+              <i class="fas fa-save"></i> Guardar
+          </PrimaryButton>
         </div>
       </form>
     </div>
   </template>
   
+  <script setup>
+  import plantillanav from '@/Layouts/plantillanav.vue';
+  import { ref } from 'vue';
+  import { router, Link } from '@inertiajs/vue3';
+  import PrimaryButton from '@/Components/PrimaryButton.vue';
+  </script>
   <script>
+  
   export default {
     data() {
       return {
@@ -232,5 +243,8 @@
   .invalid-feedback {
     font-size: 0.875rem;
   }
+  .py-12 {
+  margin-top: calc(60px + 1rem); 
+}
   </style>
   

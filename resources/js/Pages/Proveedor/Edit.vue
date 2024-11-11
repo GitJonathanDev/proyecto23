@@ -123,8 +123,8 @@ watch([() => form.nombre, () => form.direccion, () => form.telefono], () => {
 
               <!-- Botones -->
               <div class="text-center mt-4">
-                <Link href="{{ route('proveedor.index') }}" class="btn btn-secondary me-2">
-                  <i class="fas fa-arrow-left"></i> Atrás
+                <Link :href=" route('proveedor.index') " class="btn btn-secondary me-3">
+                    <i class="fas fa-arrow-left"></i> Atrás
                 </Link>
 
                 <PrimaryButton

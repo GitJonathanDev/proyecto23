@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Link } from '@inertiajs/vue3';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Formulario reactivo
 const form = useForm({
@@ -39,21 +40,19 @@ const isFormValid = computed(() =>
 const submit = () => {
     form.post(route('usuario.store'), {
         onSuccess: () => {
-            // Redirigir al listado de usuarios en caso de éxito
             router.get(route('usuario.index'));
         },
     });
 };
 </script>
-
 <template>
-    <AppLayout title="Registrar Usuario">
-        <template #header>
-            <!-- Título principal agregado -->
-            <h1 class="font-semibold text-2xl text-gray-800 leading-tight text-center">
-                Registrar Usuario
-            </h1>
-        </template>
+     <plantillanav/>
+     <AppLayout title="Registrar Usuario">
+    <template #header>  
+      <h1 class="font-semibold text-2xl text-gray-800 leading-tight text-center">
+        Registrar Usuario
+      </h1>
+    </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -139,7 +138,7 @@ const submit = () => {
 
                             <!-- Botones -->
                             <div class="text-center">
-                                <Link href="{{ route('usuario.index') }}" class="btn btn-secondary me-3">
+                                <Link :href=" route('usuario.index') " class="btn btn-secondary me-3">
                                     <i class="fas fa-arrow-left"></i> Atrás
                                 </Link>
                                 <PrimaryButton 
@@ -157,3 +156,8 @@ const submit = () => {
         </div>
     </AppLayout>
 </template>
+<style scoped>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>

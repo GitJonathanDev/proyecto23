@@ -174,9 +174,8 @@ watch(
                             </div>
 
                             <div class="text-center">
-                                <!-- Botón de Atrás -->
-                                <Link href="{{ route('proveedor.index') }}" class="btn btn-secondary me-3">
-                                    <i class="fas fa-arrow-left"></i> Atrás
+                                <Link :href=" route('proveedor.index') ">
+                                   Atrás
                                 </Link>
 
                                 <!-- Botón de Enviar -->

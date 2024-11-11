@@ -1,4 +1,5 @@
 <template>
+  <plantillanav/>
     <AppLayout title="Registrar Producto">
       <template #header>
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -145,6 +146,7 @@
   import TextInput from '@/Components/TextInput.vue';
   import PrimaryButton from '@/Components/PrimaryButton.vue';
   import { router } from '@inertiajs/vue3';
+  import plantillanav from '@/Layouts/plantillanav.vue';
   
   // Recibiendo propiedades desde Inertia
   const props = defineProps({
@@ -244,4 +246,9 @@
     () => {}
   );
   </script>
+  <style>
+  .py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>
   

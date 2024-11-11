@@ -1,5 +1,7 @@
+
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 
 const props = defineProps({
     canLogin: Boolean,
@@ -16,27 +18,28 @@ const props = defineProps({
 
 // Function to handle image error
 function handleImageError() {
-    const screenshotContainer = document.getElementById('screenshot-container');
-    const docsCard = document.getElementById('docs-card');
-    const docsCardContent = document.getElementById('docs-card-content');
-    const background = document.getElementById('background');
+    const elements = [
+        { id: 'screenshot-container', class: 'hidden' },
+        { id: 'docs-card', class: 'row-span-1' },
+        { id: 'docs-card-content', class: 'flex-row' },
+        { id: 'background', class: 'hidden' },
+    ];
 
-    if (screenshotContainer) screenshotContainer.classList.add('!hidden');
-    if (docsCard) docsCard.classList.add('!row-span-1');
-    if (docsCardContent) docsCardContent.classList.add('!flex-row');
-    if (background) background.classList.add('!hidden');
+    elements.forEach(({ id, class: className }) => {
+        const element = document.getElementById(id);
+        if (element) element.classList.add(className);
+    });
 }
 
-// Event listener for navigation
+// Toggle navigation for responsive menu
 const toggleNav = () => {
     const nav = document.getElementById("nav");
-    nav.classList.toggle("nav-active");
+    if (nav) nav.classList.toggle("nav-active");
 };
 
-// Use the onMounted lifecycle hook to add event listeners
-import { onMounted } from 'vue';
 onMounted(() => {
-    document.getElementById("icono-nav").addEventListener("click", toggleNav);
+    const iconoNav = document.getElementById("icono-nav");
+    if (iconoNav) iconoNav.addEventListener("click", toggleNav);
 
     // Prevent back navigation
     history.pushState(null, null, location.href);
@@ -49,54 +52,46 @@ onMounted(() => {
 <template>
     <Head>
         <title>BODY FIT GYM</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;400;600;800;900&display=swap" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;400;600;800;900&display=swap" />
     </Head>
 
     <div id="app">
-        <!-- MENU -->
         <header class="contenedor-header">
-    <h1>BODY <span class="txtRojo">FIT</span></h1>
-    <nav id="nav">
-        <a href="#inicio">Inicio</a>
-        <a href="#servicios">Servicios</a>
-        <a href="#galeria">Galería</a>
-        <nav v-if="canLogin" class="-mx-3 flex flex-1 justify-end">
-            <Link
-                v-if="$page.props.auth.user"
-                :href="route('dashboard')"
-                class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-            >
-                Dashboard
-            </Link>
-
-            <template v-else>
-                <Link
-                    :href="route('login')"
-                    class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                >
-                    Log in
-                </Link>
-
-                <Link
-                    v-if="canRegister"
-                    :href="route('register')"
-                    class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                >
-                    Register
-                </Link>
-            </template>
+        <h1>BODY <span class="txtRojo">FIT</span></h1>
+        <nav id="nav">
+            <a href="#inicio">Inicio</a>
+            <a href="#servicios">Servicios</a>
+            <a href="#galeria">Galería</a>
         </nav>
-        <div class="nav-right">
-            <a href="https://m.facebook.com/100063843083515/" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://wa.me/59177634194?text=Hola, quería hablar con un encargado del gimnasio." title="Whatsapp"><i class="fa-brands fa-whatsapp"></i></a>
-            <a href="https://maps.app.goo.gl/JAjC77y7AMYtU9Am9" title="Ubicación"><i class="fas fa-map-marker-alt"></i></a>
+        <div class="auth-links">
+            <template v-if="canLogin">
+                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="btn-link">Dashboard</Link>
+                <template v-else>
+                    <Link :href="route('login')" class="btn-link">Ingresar</Link>
+                    <Link v-if="canRegister" :href="route('register')" class="btn-link">Registrarse</Link>
+                </template>
+            </template>
         </div>
-    </nav>
-    <div id="icono-nav" class="nav-responsive">
-        <i class="fas fa-bars"></i>
-    </div>
-</header>
+        <div class="nav-right">
+            <!-- Usamos imágenes SVG como iconos -->
+            <a href="https://m.facebook.com/100063843083515/" title="Facebook">
+    <i class="fab fa-facebook-f"></i> <!-- Ícono de Facebook -->
+</a>
+<a href="https://wa.me/59177634194?text=Hola, quería hablar con un encargado del gimnasio." title="Whatsapp">
+    <i class="fab fa-whatsapp"></i> <!-- Ícono de WhatsApp -->
+</a>
+            <a href="https://maps.app.goo.gl/JAjC77y7AMYtU9Am9" title="Ubicación">
+                <i class="fas fa-map-marker-alt"></i> <!-- Este es el ícono de ubicación -->
+            </a>
+
+        </div>
+        <div id="icono-nav" class="nav-responsive" @click="toggleMenu">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/Hamburger_icon.svg" alt="Menu" class="icon" />
+        </div>
+    </header>
+
 
         <!-- SECCION INICIO -->
         <section id="inicio" class="inicio">
@@ -133,7 +128,7 @@ onMounted(() => {
                         <p>El gimnasio Body Fit te brinda un lugar para ejercitarte con máquinas y artículos deportivos, además de ofrecer Crossfit y Artes Marciales.</p>
                     </div>
                     <div class="col">
-                        <img src="img/servicios.png" alt="Servicios" />
+                        <img src="img/servicios.png" alt="Servicios del gimnasio" />
                     </div>
                 </div>
             </div>
@@ -150,19 +145,20 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="fila">
-                    <div class="col"><img src="img/logo (2).jpg" alt="Imagen 1" /></div>
-                    <div class="col"><img src="img/logo (3).jpg" alt="Imagen 2" /></div>
-                    <div class="col"><img src="img/img1.jpg" alt="Imagen 3" /></div>
+                    <div class="col"><img src="img/logo (2).jpg" alt="Foto de la galería 1" /></div>
+                    <div class="col"><img src="img/logo (3).jpg" alt="Foto de la galería 2" /></div>
+                    <div class="col"><img src="img/img1.jpg" alt="Foto de la galería 3" /></div>
                 </div>
                 <div class="fila">
-                    <div class="col"><img src="img/img_2_1716433553368.jpg" alt="Imagen 4" /></div>
-                    <div class="col"><img src="img/f5.jpg" alt="Imagen 5" /></div>
-                    <div class="col"><img src="img/img_3_1716433581049.jpg" alt="Imagen 6" /></div>
+                    <div class="col"><img src="img/img_2_1716433553368.jpg" alt="Foto de la galería 4" /></div>
+                    <div class="col"><img src="img/f5.jpg" alt="Foto de la galería 5" /></div>
+                    <div class="col"><img src="img/img_3_1716433581049.jpg" alt="Foto de la galería 6" /></div>
                 </div>
             </div>
         </section>
     </div>
 </template>
+
 
 <style scoped>
 * {
@@ -170,6 +166,14 @@ onMounted(() => {
             padding: 0;
             box-sizing: border-box;
             font-family: 'Barlow', sans-serif;
+        }
+        .nav-right a {
+        margin: 0 5px;
+    }
+        .icon {
+        width: 24px;
+        height: 24px;
+        vertical-align: middle;
         }
 
         html {
@@ -206,65 +210,124 @@ onMounted(() => {
             color: #ff1133;
         }
 
-        .contenedor-header header nav a {
-            display: inline-block;
-            text-decoration: none;
-            color: #fff;
-            padding: 5px;
-            text-transform: uppercase;
-        }
+        /* Contenedor del header */
+.contenedor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+}
 
-        .contenedor-header header nav a:hover {
-            color: #ff1133;
-        }
+/* Logo BODY FIT */
+.contenedor-header h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+}
 
-        .contenedor-header header .redes a {
-            text-decoration: none;
-            color: #fff;
-            display: inline-block;
-            padding: 5px 8px;
-        }
+.contenedor-header .txtRojo {
+    color: #ff1133;
+}
 
-        .contenedor-header header .redes a:hover {
-            color: #ff1133;
-        }
+/* Navegación centrada */
+#nav {
+    display: flex;
+    gap: 15px;
+    flex-grow: 1;
+    justify-content: center;
+}
 
-        .nav-responsive {
-            display: none;
-            font-size: 25px;
-            cursor: pointer;
-        }
+#nav a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    padding: 8px 15px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+}
 
-        /* Responsive Menu */
-        @media screen and (max-width: 768px) {
-            .contenedor-header header {
-                flex-wrap: wrap;
-            }
+#nav a:hover {
+    color: #ff1133;
+}
 
-            #nav {
-                display: none;
-                width: 100%;
-                text-align: center;
-                flex-direction: column;
-            }
+/* Enlaces de autenticación y redes sociales alineados a la derecha */
+.auth-links, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
-            #nav a {
-                padding: 10px;
-                border-bottom: 1px solid #1f283e;
-            }
+/* Estilos para enlaces de autenticación */
+.auth-links .btn-link {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+}
 
-            .nav-right {
-                margin-top: 10px;
-            }
+.auth-links .btn-link:hover {
+    color: #ff1133;
+    border-color: #ff1133;
+}
 
-            .nav-responsive {
-                display: block;
-            }
+/* Estilos para iconos de redes sociales */
+.nav-right a {
+    color: #fff;
+    font-size: 1.2em;
+    transition: color 0.3s;
+}
 
-            .contenedor-header header nav.active {
-                display: flex;
-            }
-        }
+.nav-right a:hover {
+    color: #ff1133;
+}
+
+/* Icono del menú responsivo */
+.nav-responsive {
+    display: none;
+    font-size: 25px;
+    cursor: pointer;
+    color: #fff;
+}
+
+/* Menu responsive */
+@media screen and (max-width: 768px) {
+    .contenedor-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #nav {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+    }
+
+    #nav.active {
+        display: flex;
+    }
+
+    #nav a {
+        padding: 10px;
+        border-bottom: 1px solid #1f283e;
+    }
+
+    .auth-links, .nav-right {
+        flex-direction: row;
+        margin-top: 10px;
+    }
+
+    .nav-responsive {
+        display: block;
+    }
+}
+
+
 
         /* Otros estilos ya presentes */
         .inicio {

@@ -4,6 +4,7 @@ import { router, Link } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Propiedades recibidas desde Inertia
 const props = defineProps({
@@ -30,6 +31,7 @@ const deleteServicio = () => {
 </script>
 
 <template>
+    <plantillanav/>
     <AppLayout title="Gestionar Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -48,7 +50,7 @@ const deleteServicio = () => {
                             <!-- Nuevo servicio -->
                             <Link :href="route('servicio.create')" class="btn btn-primary inline-flex items-center space-x-2">
                                 <i class="fas fa-plus"></i>
-                                <span>Registrar Servicio</span>
+                                <span>Registrar</span>
                             </Link>
 
                             <!-- Formulario de búsqueda -->
@@ -207,5 +209,8 @@ const deleteServicio = () => {
 
 .btn-secondary:hover {
     background-color: #D1D5DB;
+}
+.py-12 {
+  margin-top: calc(60px + 1rem); 
 }
 </style>

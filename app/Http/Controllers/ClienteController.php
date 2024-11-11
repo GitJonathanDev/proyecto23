@@ -19,7 +19,7 @@ class ClienteController extends Controller
         // Consulta con filtros de búsqueda
         $clientes = Cliente::when($criterio, function ($query) use ($criterio, $buscar) {
             return $query->where($criterio, 'LIKE', '%' . $buscar . '%');
-        })->paginate(10); // Paginación de 10 por página
+        })->paginate(5); // Paginación de 10 por página
 
         // Retornar a Inertia la vista de clientes con los datos de paginación y los filtros
         return Inertia::render('Cliente/Index', [
@@ -36,16 +36,16 @@ class ClienteController extends Controller
     {
         // Validación de los datos del formulario.
         $validator = Validator::make($request->all(), [
-            'carnetIdentidad' => 'required|digits_between:8,10|unique:clientes,carnetIdentidad',
+            'carnetIdentidad' => 'required|digits_between:8,10|unique:cliente,carnetIdentidad',
             'nombre' => 'required|string|min:3|max:30',
             'apellidoPaterno' => 'required|string|min:3|max:30',
             'apellidoMaterno' => 'required|string|min:3|max:30',
             'sexo' => 'required|in:masculino,femenino',
             'edad' => 'required|integer|between:8,100',
             'telefono' => 'required|digits_between:8,10',
-            'nombreUsuario' => 'required|string|min:4|unique:clientes,nombreUsuario',
+            'nombreUsuario' => 'required|string|min:4|unique:users,nombreUsuario',
             'email' => 'required|email|unique:clientes,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
         ]);
 
         // Si la validación falla, devolver errores a Vue
@@ -70,21 +70,21 @@ class ClienteController extends Controller
         ]);
 
         // Redirigir a la lista de clientes con un mensaje de éxito
-        return Inertia::render('Clientes/Index', [
+        return Inertia::render('Cliente/Index', [
             'successMessage' => 'Cliente registrado con éxito'
         ]);
     }
     public function edit($id)
     {
         $cliente = Cliente::findOrFail($id); // Obtener el cliente por ID
-        return Inertia::render('Clientes/Edit', [
+        return Inertia::render('Cliente/Edit', [
             'cliente' => $cliente
         ]);
     }
     public function update(Request $request, $id)
     {
         $request->validate([
-            'carnetIdentidad' => 'required|digits_between:8,10|unique:clientes,carnetIdentidad,' . $id,
+            'carnetIdentidad' => 'required|digits_between:8,10|unique:cliente,carnetIdentidad,' . $id,
             'nombre' => 'required|string|min:3|max:30',
             'apellidoPaterno' => 'required|string|min:3|max:30',
             'apellidoMaterno' => 'required|string|min:3|max:30',

@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Link } from '@inertiajs/vue3';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Propiedades desde Inertia
 const props = defineProps({
@@ -77,6 +78,7 @@ watch([() => form.horaInicio, () => form.horaFin], () => {
 </script>
 
 <template>
+  <plantillanav/>
   <AppLayout title="Registrar Horario">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">Registrar Horario</h2>
@@ -121,7 +123,7 @@ watch([() => form.horaInicio, () => form.horaFin], () => {
 
               <div class="text-center">
                 <!-- Botón de Atrás -->
-                <Link href="{{ route('horario.index') }}" class="btn btn-secondary me-2">
+                <Link :href="route('horario.index')" class="btn btn-secondary me-2">
                   <i class="fas fa-arrow-left"></i> Atrás
                 </Link>
                 <!-- Botón de Enviar -->
@@ -143,5 +145,7 @@ watch([() => form.horaInicio, () => form.horaFin], () => {
 </template>
 
 <style scoped>
-/* Puedes agregar estilos personalizados aquí si es necesario */
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
 </style>

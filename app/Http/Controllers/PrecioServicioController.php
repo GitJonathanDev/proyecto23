@@ -31,14 +31,18 @@ class PrecioServicioController extends Controller
     }
     public function create()
     {
-        $servicios = Servicio::all(); // Obtener todos los servicios
-        $tiposRegistrados = PrecioServicio::groupBy('codServicio')->pluck('tipo', 'codServicio'); // Tipos registrados por servicio
-        $tiposDisponibles = ['Diario', 'Mensual', 'Anual']; // Tipos de servicio disponibles
 
+        $servicios = Servicio::all();
+        $tiposRegistrados = PrecioServicio::select('codServicioF', 'tipo')
+            ->get()
+            ->groupBy('codServicioF');
+
+        $tiposDisponibles = ['Diario', 'Mensual', 'Anual']; 
         return Inertia::render('PrecioServicio/Create', [
             'servicios' => $servicios,
             'tiposRegistrados' => $tiposRegistrados,
             'tiposDisponibles' => $tiposDisponibles,
+            'errors' => session('errors') ?? [],
         ]);
     }
     public function store(Request $request)
@@ -46,26 +50,24 @@ class PrecioServicioController extends Controller
         $request->validate([
             'tipo' => 'required|string|max:255',
             'precio' => 'required|numeric',
-            'codServicio' => 'required|exists:servicio,codServicio', 
+            'codServicioF' => 'required|exists:servicio,codServicio', 
         ]);
         PrecioServicio::create([
             'tipo' => $request->tipo,
             'precio' => $request->precio,
-            'codServicio' => $request->codServicio,
+            'codServicioF' => $request->codServicioF,
         ]);
         return redirect()->route('precioServicio.index')->with('success', 'Precio de servicio registrado exitosamente.');
     }
     public function edit($id)
     {
-        // Obtener el precio de servicio a editar
         $precioServicio = PrecioServicio::findOrFail($id);
-
-        // Obtener la lista de servicios disponibles para asociar
-        $servicios = Servicio::all();
-
-        return Inertia::render('PrecioServicio/Edit', [
+        $servicios = Servicio::all(); 
+        $tiposDisponibles = ['Diario', 'Mensual', 'Anual']; 
+        return inertia('PrecioServicio/Edit', [
             'precioServicio' => $precioServicio,
-            'servicios' => $servicios
+            'servicios' => $servicios,
+            'tiposDisponibles' => $tiposDisponibles,
         ]);
     }
 
@@ -78,7 +80,7 @@ class PrecioServicioController extends Controller
         $request->validate([
             'tipo' => 'required|string|max:255',
             'precio' => 'required|numeric',
-            'codServicio' => 'required|exists:servicios,codServicio',
+            'codServicio' => 'required|exists:servicio,codServicio',
         ]);
 
         // Obtener el precio de servicio y actualizarlo
@@ -86,16 +88,12 @@ class PrecioServicioController extends Controller
         $precioServicio->update([
             'tipo' => $request->tipo,
             'precio' => $request->precio,
-            'codServicio' => $request->codServicio,
+            'codServicioF' => $request->codServicio,
         ]);
 
         // Redirigir con un mensaje de éxito
         return redirect()->route('precioServicio.index')->with('success', 'Precio de servicio actualizado exitosamente.');
     }
-
-    /**
-     * Elimina un precio de servicio.
-     */
     public function destroy($id)
     {
         // Obtener el precio de servicio y eliminarlo
