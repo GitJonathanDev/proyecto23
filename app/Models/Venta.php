@@ -56,6 +56,7 @@ class Venta extends Model
     {
         return $this->belongsTo(Pago::class, 'codPagoF', 'codPago');
     }
+    
 
 
     public $timestamps = false;

@@ -84,7 +84,7 @@ const deleteCompra = () => {
                                     <tr v-for="compra in compras.data" :key="compra.codCompra" class="border-b">
                                         <td class="p-3">{{ compra.codCompra }}</td>
                                         <td class="p-3">{{ compra.fechaCompra}}</td>
-                                        <td class="p-3">{{ compra.montoTotal | formatCurrency }}</td>
+                                        <td class="p-3">{{ compra.montoTotal }}Bs.</td>
                                         <td class="p-3">{{ compra.proveedor.nombre }}</td>
                                         <td class="p-3">{{ compra.encargado.nombre }}</td>
                                         <td class="p-3 text-center">

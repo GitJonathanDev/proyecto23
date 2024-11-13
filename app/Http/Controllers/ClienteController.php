@@ -98,5 +98,19 @@ class ClienteController extends Controller
 
         return redirect()->route('cliente.index')->with('success', 'Cliente actualizado correctamente.');
     }
+    public function buscar(Request $request)
+    {
+        $query = $request->input('query');
+        if (empty($query) || strlen($query) < 2) {
+            return response()->json([]);
+        }
+        $clientes = Cliente::where('nombre', 'like', "%$query%")
+                   ->orWhere('apellidoPaterno', 'like', "%$query%")
+                   ->orWhere('telefono', 'like', "%$query%")
+                   ->orWhere('carnetIdentidad', 'like', "%$query%") 
+                   ->get(['carnetIdentidad', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 'telefono']);
+        return response()->json($clientes);
+    }
+
 
 }

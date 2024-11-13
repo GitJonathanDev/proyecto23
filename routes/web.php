@@ -17,6 +17,8 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\Auth\CustomLoginController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\EstadisticasController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -26,8 +28,6 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-
-
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -37,11 +37,16 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 });
-Route::middleware('auth')->group(function () {
-    Route::get('/cliente/dashboard', [ClientController::class, 'dashboard'])->name('cliente');
-    Route::get('/encargado/dashboard', [ManagerController::class, 'dashboard'])->name('encargado');
-    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin');
-});
+
+Route::get('/vista-cliente', function () {
+    return Inertia::render('VistaCliente/compracliente');
+})->name('vista-cliente');
+Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+    // Route::middleware('auth')->group(function () {
+    //     Route::get('/cliente', [ClientController::class, 'dashboard'])->name('cliente');
+    //     Route::get('/encargado/dashboard', [ManagerController::class, 'dashboard'])->name('encargado');
+    //     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin');
+    // });
 
 
 Route::prefix('tipoUsuario')->group(function () {
@@ -154,10 +159,14 @@ Route::prefix('usuario')->group(function () {
     Route::prefix('membresia')->group(function() {
         Route::get('index', [MembresiaController::class, 'index'])->name('membresia.index');
         Route::get('/create', [MembresiaController::class, 'create'])->name('membresia.create');
+        Route::post('/store', [MembresiaController::class, 'store'])->name('membresia.store');
         Route::get('show/{membresia}', [MembresiaController::class, 'show'])->name('membresia.show');
         Route::delete('destroy/{membresia}', [MembresiaController::class, 'destroy'])->name('membresia.destroy');
+        // Route::get('/clientes/buscar', [ClienteController::class, 'buscarCliente'])->name('clientes.buscar');
     });  
-
+    Route::get('/clientes/buscar', [ClienteController::class, 'buscar'])->name('clientes.buscar');
+    Route::get('/servicios/buscar', [ServicioController::class, 'buscar'])->name('servicios.buscar');
+    Route::get('/servicios/todos', [ServicioController::class, 'servicios']);
 
 Route::prefix('venta')->group(function () {
     Route::get('/index', [VentaController::class, 'index'])->name('venta.index');
@@ -170,3 +179,5 @@ Route::prefix('venta')->group(function () {
 
 
 Route::post('/login', [CustomLoginController::class, 'login'])->name('login');
+Route::get('/estadisticas', [EstadisticasController::class, 'index'])->name('encargado');
+Route::get('/admin', [AdminController::class, 'index'])->name('admin');

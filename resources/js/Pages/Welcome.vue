@@ -66,14 +66,16 @@ onMounted(() => {
             <a href="#galeria">Galería</a>
         </nav>
         <div class="auth-links">
-            <template v-if="canLogin">
-                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="btn-link">Dashboard</Link>
-                <template v-else>
-                    <Link :href="route('login')" class="btn-link">Ingresar</Link>
-                    <Link v-if="canRegister" :href="route('register')" class="btn-link">Registrarse</Link>
+                <template v-if="canLogin">
+                    <template v-if="$page.props.auth.user">
+                        <Link :href="route('logout')" method="post" class="btn-link">Cerrar sesión</Link>
+                    </template>
+                    <template v-else>
+                        <Link :href="route('login')" class="btn-link">Ingresar</Link>
+                        <Link v-if="canRegister" :href="route('register')" class="btn-link">Registrarse</Link>
+                    </template>
                 </template>
-            </template>
-        </div>
+            </div>
         <div class="nav-right">
             <!-- Usamos imágenes SVG como iconos -->
             <a href="https://m.facebook.com/100063843083515/" title="Facebook">

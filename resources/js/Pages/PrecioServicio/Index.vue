@@ -12,32 +12,26 @@ const props = defineProps({
     criterio: String, 
         buscar: String 
 });
-
 const showModal = ref(false);
 const selectedPrecioServicio = ref(null);
-
 const form = useForm({
     criterio: props.criterio || 'tipo',
     buscar: props.buscar || '',
 });
-
 const confirmDeletePrecioServicio = (item) => {
     selectedPrecioServicio.value = item;
     showModal.value = true;
 };
-
 const deletePrecioServicio = () => {
     if (selectedPrecioServicio.value) {
         router.delete(route('precioServicio.destroy', selectedPrecioServicio.value.codPrecioServicio));
         showModal.value = false;
     }
 };
-
 const submitSearch = () => {
     form.get(route('precioServicio.index'));
 };
 </script>
-
 <template>
     <plantillanav/>
     <AppLayout title="Gestionar Precios de Servicio">

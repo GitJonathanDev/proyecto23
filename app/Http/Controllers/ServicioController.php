@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
+use \Models\PrecioServicio;
 use App\Models\Horario;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -94,4 +95,26 @@ class ServicioController extends Controller
 
         return redirect()->route('servicio.index')->with('success', 'Servicio eliminado exitosamente.');
     }
+    public function buscar(Request $request)
+    {
+        $searchTerm = $request->query('search');
+        
+        $servicios = Servicio::with('precios', 'horario') // Asegúrate de incluir las relaciones de precios y horario
+                            ->where('nombre', 'like', '%' . $searchTerm . '%')
+                            ->orWhere('descripcion', 'like', '%' . $searchTerm . '%')
+                            ->get();
+        
+        return response()->json($servicios);
+    }
+    public function servicios()
+    {
+        try {
+            $servicios = Servicio::with(['precios', 'horario'])->get();
+            return response()->json($servicios);
+        } catch (\Exception $e) {
+            // Manejo de errores
+            return response()->json(['error' => 'Error al cargar los servicios: ' . $e->getMessage()], 500);
+        }
+    }
+
 }

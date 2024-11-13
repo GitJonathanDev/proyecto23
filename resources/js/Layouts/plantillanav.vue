@@ -137,7 +137,7 @@
   
   .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 45px;
   }
   
   .menu-toggle {

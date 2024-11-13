@@ -19,16 +19,21 @@ class CustomLoginController extends Controller
             $user = Auth::user();
             switch ($user->codTipoUsuarioF) {
                 case 3:
-                    return redirect()->route('Dashboard');
-                case 2:
+                    return redirect()->route('vista-cliente');
+                case 5:
                     return redirect()->route('encargado');
-                case 1:
+                case 4:
                     return redirect()->route('admin');
                 default:
-                    return redirect()->route('/');
+                    return redirect()->route('vista-cliente');
             }
         }
         return back()->withErrors(['email' => 'Las credenciales son incorrectas']);
+    }
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        return redirect()->route('login');
     }
 }
 

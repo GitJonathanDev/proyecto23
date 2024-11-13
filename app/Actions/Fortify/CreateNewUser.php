@@ -46,6 +46,6 @@ class CreateNewUser implements CreatesNewUsers
             'edad' => $validated['edad'],
         ]);
         Auth::login($user); 
-        return redirect()->route('Cliente');
+        return redirect()->route('vista-cliente');
     }
 }

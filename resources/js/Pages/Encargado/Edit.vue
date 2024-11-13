@@ -5,6 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { defineProps } from 'vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Propiedades recibidas
 const props = defineProps({
@@ -58,6 +59,7 @@ const isFormValid = () => {
 </script>
 
 <template>
+  <plantillanav/>
   <AppLayout title="Editar Vendedor">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -187,3 +189,8 @@ const isFormValid = () => {
     </div>
   </AppLayout>
 </template>
+<style scoped>
+.py-12 {
+  margin-top: calc(60px + 1rem); 
+}
+</style>
