@@ -253,3 +253,6 @@ Route::get('/reportes/compras', [ReporteVentaController::class, 'indexCompras'])
 Route::post('/login', [CustomLoginController::class, 'login'])->name('login');
 Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
 
+Route::get('/css/estiloPagAdultoClaro.css', function () {
+    return response()->file(public_path('css/estiloPagAdultoClaro.css'));
+})->name('css.estiloPagAdultoClaro');

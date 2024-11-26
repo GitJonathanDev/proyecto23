@@ -144,13 +144,14 @@ export default {
   data() {
     return {
       searchQuery: "",
-      filteredResults: [], // Agregado: Resultados filtrados
+      filteredResults: [],
       selectedStyle: localStorage.getItem("selectedStyle") || "defecto",
       isDarkMode: JSON.parse(localStorage.getItem("isDarkMode")) || false,
       isMenuOpen: false,
-      isSearchBarOpen: false, // Agregado: Estado de la barra de búsqueda
+      isSearchBarOpen: false,
       activeMenu: null,
       menuOptions: {},
+      baseAssetPath: process.env.VUE_APP_BASE_ASSET_PATH || "", // Base de activos desde .env
     };
   },
   methods: {
@@ -177,16 +178,16 @@ export default {
       this.activeMenu = null;
     },
     logout() {
-  axios
-    .post(route('logout'))
-    .then((response) => {
-      console.log(response.data.message);
-      window.location.href = route('login'); 
-    })
-    .catch((error) => {
-      console.error("Error al cerrar sesión:", error);
-    });
-},
+      axios
+        .post(route('logout'))
+        .then((response) => {
+          console.log(response.data.message);
+          window.location.href = route('login'); 
+        })
+        .catch((error) => {
+          console.error("Error al cerrar sesión:", error);
+        });
+    },
     updateStyles() {
       localStorage.setItem("selectedStyle", this.selectedStyle);
       localStorage.setItem("isDarkMode", JSON.stringify(this.isDarkMode));
@@ -202,49 +203,50 @@ export default {
       document.head.appendChild(linkTag);
     },
     fetchMenuOptions() {
-  axios
-    .get(route('menus'))
-    .then((response) => {
-      this.menuOptions = response.data;
-    })
-    .catch((error) => {
-      console.error("Error al obtener las opciones del menú:", error);
-    });
-},
-async performSearch() {
-  if (this.searchQuery.trim() === "") {
-    this.filteredResults = [];
-    return;
-  }
+      axios
+        .get(route('menus'))
+        .then((response) => {
+          this.menuOptions = response.data;
+        })
+        .catch((error) => {
+          console.error("Error al obtener las opciones del menú:", error);
+        });
+    },
+    async performSearch() {
+      if (this.searchQuery.trim() === "") {
+        this.filteredResults = [];
+        return;
+      }
 
-  try {
-    const response = await axios.get(route('search'), {
-      params: {
-        query: this.searchQuery,
-      },
-    });
+      try {
+        const response = await axios.get(route('search'), {
+          params: {
+            query: this.searchQuery,
+          },
+        });
 
-    this.filteredResults = response.data;
-  } catch (error) {
-    console.error("Error en la búsqueda:", error);
-  }
-},
+        this.filteredResults = response.data;
+      } catch (error) {
+        console.error("Error en la búsqueda:", error);
+      }
+    },
   },
   computed: {
     currentStyles() {
+      const base = this.baseAssetPath;
       return {
         defecto: this.isDarkMode
-          ? "/css/estiloPagClienteOscuro.css"
-          : "/css/estiloPagClienteClaro.css",
+          ? `${base}css/estiloPagClienteOscuro.css`
+          : `${base}css/estiloPagClienteClaro.css`,
         ninos: this.isDarkMode
-          ? "/css/estiloPagNinoOscuro.css"
-          : "/css/estiloPagNinoClaro.css",
+          ? `${base}css/estiloPagNinoOscuro.css`
+          : `${base}css/estiloPagNinoClaro.css`,
         jovenes: this.isDarkMode
-          ? "/css/estiloPagJovenOscuro.css"
-          : "/css/estiloPagJovenClaro.css",
+          ? `${base}css/estiloPagJovenOscuro.css`
+          : `${base}css/estiloPagJovenClaro.css`,
         adultos: this.isDarkMode
-          ? "/css/estiloPagAdultoOscuro.css"
-          : "/css/estiloPagAdultoClaro.css",
+          ? `${base}css/estiloPagAdultoOscuro.css`
+          : `${base}css/estiloPagAdultoClaro.css`,
       };
     },
   },
