@@ -144,13 +144,14 @@ export default {
   data() {
     return {
       searchQuery: "",
-      filteredResults: [],
+      filteredResults: [], // Agregado: Resultados filtrados
       selectedStyle: localStorage.getItem("selectedStyle") || "defecto",
       isDarkMode: JSON.parse(localStorage.getItem("isDarkMode")) || false,
       isMenuOpen: false,
-      isSearchBarOpen: false,
+      isSearchBarOpen: false, // Agregado: Estado de la barra de búsqueda
       activeMenu: null,
       menuOptions: {},
+      baseAssetPath: "{{ asset('') }}", // Integrado: Ruta base del servidor
     };
   },
   methods: {
@@ -181,7 +182,7 @@ export default {
         .post(route('logout'))
         .then((response) => {
           console.log(response.data.message);
-          window.location.href = route('login');
+          window.location.href = route('login'); 
         })
         .catch((error) => {
           console.error("Error al cerrar sesión:", error);
@@ -232,19 +233,20 @@ export default {
   },
   computed: {
     currentStyles() {
+      const base = this.baseAssetPath;
       return {
         defecto: this.isDarkMode
-          ? "{{ asset('css/estiloPagClienteOscuro.css') }}"
-          : "{{ asset('css/estiloPagClienteClaro.css') }}",
+          ? `${base}css/estiloPagClienteOscuro.css`
+          : `${base}css/estiloPagClienteClaro.css`,
         ninos: this.isDarkMode
-          ? "{{ asset('css/estiloPagNinoOscuro.css') }}"
-          : "{{ asset('css/estiloPagNinoClaro.css') }}",
+          ? `${base}css/estiloPagNinoOscuro.css`
+          : `${base}css/estiloPagNinoClaro.css`,
         jovenes: this.isDarkMode
-          ? "{{ asset('css/estiloPagJovenOscuro.css') }}"
-          : "{{ asset('css/estiloPagJovenClaro.css') }}",
+          ? `${base}css/estiloPagJovenOscuro.css`
+          : `${base}css/estiloPagJovenClaro.css`,
         adultos: this.isDarkMode
-          ? "{{ asset('css/estiloPagAdultoOscuro.css') }}"
-          : "{{ asset('css/estiloPagAdultoClaro.css') }}",
+          ? `${base}css/estiloPagAdultoOscuro.css`
+          : `${base}css/estiloPagAdultoClaro.css`,
       };
     },
   },
@@ -261,6 +263,7 @@ export default {
   },
 };
 </script>
+
 
 
 
