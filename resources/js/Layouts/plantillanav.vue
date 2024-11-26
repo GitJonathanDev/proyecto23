@@ -177,24 +177,30 @@ export default {
       this.activeMenu = null;
     },
     logout() {
-  axios
-    .post(route('logout'))
-    .then((response) => {
-      console.log(response.data.message);
-      window.location.href = route('login'); 
-    })
-    .catch((error) => {
-      console.error("Error al cerrar sesión:", error);
-    });
-},
+      axios
+        .post("logout") // Ruta relativa
+        .then((response) => {
+          console.log(response.data.message);
+          window.location.href = "login"; // Ruta relativa
+        })
+        .catch((error) => {
+          console.error("Error al cerrar sesión:", error);
+        });
+    },
     updateStyles() {
       localStorage.setItem("selectedStyle", this.selectedStyle);
       localStorage.setItem("isDarkMode", JSON.stringify(this.isDarkMode));
-      const selectedHref = this.currentStyles[this.selectedStyle];
+
+      // Construcción dinámica de rutas
+      const basePath = window.location.pathname.replace(/\/[^/]*$/, ""); // Ruta base
+      const selectedHref = `${basePath}/${this.currentStyles[this.selectedStyle]}`;
+
+      // Eliminar estilos existentes y agregar nuevos
       const existingPageStyles = document.querySelectorAll(
         'link[rel="stylesheet"][data-page-style]'
       );
       existingPageStyles.forEach((link) => link.remove());
+
       const linkTag = document.createElement("link");
       linkTag.rel = "stylesheet";
       linkTag.href = selectedHref;
@@ -202,49 +208,49 @@ export default {
       document.head.appendChild(linkTag);
     },
     fetchMenuOptions() {
-  axios
-    .get(route('menus'))
-    .then((response) => {
-      this.menuOptions = response.data;
-    })
-    .catch((error) => {
-      console.error("Error al obtener las opciones del menú:", error);
-    });
-},
-async performSearch() {
-  if (this.searchQuery.trim() === "") {
-    this.filteredResults = [];
-    return;
-  }
+      axios
+        .get("menus") // Ruta relativa
+        .then((response) => {
+          this.menuOptions = response.data;
+        })
+        .catch((error) => {
+          console.error("Error al obtener las opciones del menú:", error);
+        });
+    },
+    async performSearch() {
+      if (this.searchQuery.trim() === "") {
+        this.filteredResults = [];
+        return;
+      }
 
-  try {
-    const response = await axios.get(route('search'), {
-      params: {
-        query: this.searchQuery,
-      },
-    });
+      try {
+        const response = await axios.get("search", {
+          params: {
+            query: this.searchQuery,
+          },
+        });
 
-    this.filteredResults = response.data;
-  } catch (error) {
-    console.error("Error en la búsqueda:", error);
-  }
-},
+        this.filteredResults = response.data;
+      } catch (error) {
+        console.error("Error en la búsqueda:", error);
+      }
+    },
   },
   computed: {
     currentStyles() {
       return {
         defecto: this.isDarkMode
-          ? "/css/estiloPagClienteOscuro.css"
-          : "/css/estiloPagClienteClaro.css",
+          ? "css/estiloPagClienteOscuro.css"
+          : "css/estiloPagClienteClaro.css",
         ninos: this.isDarkMode
-          ? "/css/estiloPagNinoOscuro.css"
-          : "/css/estiloPagNinoClaro.css",
+          ? "css/estiloPagNinoOscuro.css"
+          : "css/estiloPagNinoClaro.css",
         jovenes: this.isDarkMode
-          ? "/css/estiloPagJovenOscuro.css"
-          : "/css/estiloPagJovenClaro.css",
+          ? "css/estiloPagJovenOscuro.css"
+          : "css/estiloPagJovenClaro.css",
         adultos: this.isDarkMode
-          ? "/css/estiloPagAdultoOscuro.css"
-          : "/css/estiloPagAdultoClaro.css",
+          ? "css/estiloPagAdultoOscuro.css"
+          : "css/estiloPagAdultoClaro.css",
       };
     },
   },
@@ -261,9 +267,6 @@ async performSearch() {
   },
 };
 </script>
-
-
-
 
 
     <style scoped>
