@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibiendo las propiedades desde Inertia
 const props = defineProps({
@@ -26,12 +27,12 @@ const submitButton = ref(null);
 // Función para validar el nombre
 const validateNombre = () => {
     const nombre = form.nombre.trim();
-    return nombre.length > 2 && nombre.length < 151;
+    return nombre.length >= 3 && nombre.length <= 150;
 };
 
 // Función para validar la descripción
 const validateDescripcion = () => {
-    return form.descripcion.trim() !== '';
+    return form.descripcion.trim().length > 0;
 };
 
 // Función para validar el horario
@@ -46,7 +47,9 @@ const isFormValid = computed(() => {
 
 // Habilitar/deshabilitar el botón de enviar
 watch(isFormValid, () => {
-    submitButton.value.disabled = !isFormValid.value;
+    if (submitButton.value) {
+        submitButton.value.disabled = !isFormValid.value;
+    }
 });
 
 // Función para manejar el envío del formulario
@@ -60,7 +63,7 @@ const submit = () => {
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Registrar Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -70,50 +73,51 @@ const submit = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+                        <h1 class="text-2xl font-bold text-center mb-6">Registrar Servicio</h1>
                         <form @submit.prevent="submit" novalidate>
                             <!-- Nombre del Servicio -->
                             <div class="mb-4">
-                                <InputLabel for="nombre" value="Nombre" />
+                                <InputLabel for="nombre" value="Nombre" class="bb" />
                                 <InputError :message="errors.nombre" />
                                 <TextInput 
                                     v-model="form.nombre"
                                     id="nombre"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full cc"
                                     placeholder="Ingrese el nombre del servicio"
                                     required
                                 />
-                                <div v-if="!validateNombre() && form.nombre.length > 0" class="text-red-500 text-sm">
+                                <div v-if="!validateNombre() && form.nombre.length > 0" class="text-red-500 text-sm dd">
                                     * El nombre debe tener entre 3 y 150 caracteres.
                                 </div>
                             </div>
 
                             <!-- Descripción del Servicio -->
                             <div class="mb-4">
-                                <InputLabel for="descripcion" value="Descripción" />
+                                <InputLabel for="descripcion" value="Descripción" class="bb" />
                                 <InputError :message="errors.descripcion" />
                                 <textarea
                                     v-model="form.descripcion"
                                     id="descripcion"
-                                    class="form-control mt-1 block w-full"
+                                    class="form-control mt-1 block w-full cc"
                                     placeholder="Ingrese la descripción del servicio"
                                     rows="3"
                                     required
                                 ></textarea>
-                                <div v-if="!validateDescripcion() && form.descripcion.length > 0" class="text-red-500 text-sm">
+                                <div v-if="!validateDescripcion() && form.descripcion.length > 0" class="text-red-500 text-sm dd">
                                     * La descripción es obligatoria.
                                 </div>
                             </div>
 
                             <!-- Selección del Horario -->
                             <div class="mb-4">
-                                <InputLabel for="codHorarioF" value="Horario" />
+                                <InputLabel for="codHorarioF" value="Horario" class="bb" />
                                 <InputError :message="errors.codHorarioF" />
                                 <select 
                                     v-model="form.codHorarioF"
                                     id="codHorarioF"
-                                    class="form-select mt-1 block w-full"
+                                    class="form-select mt-1 block w-full ee"
                                     required
                                 >
                                     <option value="">Seleccione un horario</option>
@@ -125,22 +129,21 @@ const submit = () => {
                                         Hora Inicio: {{ horario.horaInicio }} - Hora Fin: {{ horario.horaFin }}
                                     </option>
                                 </select>
-                                <div v-if="!validateCodHorarioF() && form.codHorarioF" class="text-red-500 text-sm">
+                                <div v-if="!validateCodHorarioF() && form.codHorarioF" class="text-red-500 text-sm dd">
                                     * Debe seleccionar un horario.
                                 </div>
                             </div>
 
                             <div class="text-center">
                                 <!-- Botón de Atrás -->
-                                <Link href="{{ route('servicio.index') }}" class="btn btn-secondary me-2">
+                                <Link href="{{ route('servicio.index') }}" class="btn btn-secondary me-3">
                                     <i class="fas fa-arrow-left"></i> Atrás
                                 </Link>
 
                                 <!-- Botón de Enviar -->
                                 <PrimaryButton 
                                     ref="submitButton"
-                                    class="mt-4"
-                                    :class="{ 'opacity-25': form.processing }"
+                                    class="mt-4 btn-primary"
                                     :disabled="!isFormValid || form.processing"
                                 >
                                     <i class="fas fa-save"></i> Guardar
@@ -150,11 +153,13 @@ const submit = () => {
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
     </AppLayout>
 </template>
-<style>
+
+<style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(10px + 1rem); 
 }
 </style>

@@ -6,34 +6,41 @@ import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { router } from '@inertiajs/vue3';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 const props = defineProps({
     preciosServicio: Object, 
     criterio: String, 
         buscar: String 
 });
+
 const showModal = ref(false);
 const selectedPrecioServicio = ref(null);
+
 const form = useForm({
     criterio: props.criterio || 'tipo',
     buscar: props.buscar || '',
 });
+
 const confirmDeletePrecioServicio = (item) => {
     selectedPrecioServicio.value = item;
     showModal.value = true;
 };
+
 const deletePrecioServicio = () => {
     if (selectedPrecioServicio.value) {
         router.delete(route('precioServicio.destroy', selectedPrecioServicio.value.codPrecioServicio));
         showModal.value = false;
     }
 };
+
 const submitSearch = () => {
     form.get(route('precioServicio.index'));
 };
 </script>
+
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Gestionar Precios de Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -43,8 +50,8 @@ const submitSearch = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class=" overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
                         <h1 class="text-2xl font-bold text-center mb-6">Lista de Precios de Servicio</h1>
 
                         <div class="flex justify-between items-center mb-6">
@@ -66,7 +73,7 @@ const submitSearch = () => {
                         </div>
                         <div class="overflow-x-auto">
                             <table class="table-auto w-full text-sm">
-                                <thead class="bg-gray-800 text-white">
+                                <thead>
                                     <tr>
                                         <th class="p-3 text-left">Código</th>
                                         <th class="p-3 text-left">Tipo</th>
@@ -108,6 +115,7 @@ const submitSearch = () => {
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
         <DialogModal :show="showModal" @close="showModal = false">
             <template v-slot:title>
@@ -129,16 +137,6 @@ const submitSearch = () => {
     text-align: left;
     vertical-align: middle;
 }
-
-.table-auto th {
-    background-color: #4B5563;
-    color: white;
-}
-
-.table-auto tr:nth-child(even) {
-    background-color: #F3F4F6;
-}
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -147,43 +145,6 @@ const submitSearch = () => {
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-}
-
-.btn-primary {
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-    background-color: #2563EB;
-}
-
-.btn-warning {
-    background-color: #F59E0B;
-    color: white;
-}
-
-.btn-warning:hover {
-    background-color: #D97706;
-}
-
-.btn-danger {
-    background-color: #EF4444;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #DC2626;
-}
-
-.btn-secondary {
-    background-color: #E5E7EB;
-    color: #1F2937;
-}
-
-.btn-secondary:hover {
-    background-color: #D1D5DB;
 }
 .py-12 {
   margin-top: calc(60px + 1rem); 

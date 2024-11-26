@@ -5,58 +5,53 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
-// Propiedades recibidas del controlador
+// Propiedades recibidas desde el controlador
 const props = defineProps({
   proveedor: Object,
-  errors: Object
+  errors: Object,
 });
 
 // Inicializamos el formulario con los datos del proveedor
 const form = useForm({
   nombre: props.proveedor?.nombre || '',
   direccion: props.proveedor?.direccion || '',
-  telefono: props.proveedor?.telefono || ''
+  telefono: props.proveedor?.telefono || '',
 });
 
-// Referencias a los inputs para realizar validaciones
+// Referencia al botón de submit para habilitar/deshabilitar
 const submitButton = ref(null);
 
-// Función para enviar el formulario
-const submit = () => {
-  form.put(route('proveedor.update', props.proveedor.codProveedor), {
-    onSuccess: () => {
-      // Redirige al listado de proveedores después de una actualización exitosa
-      router.get(route('proveedor.index'));
-    }
-  });
-};
+// Funciones de validación
+const validateNombre = () => form.nombre.length > 2 && form.nombre.length < 31;
+const validateDireccion = () => form.direccion.length > 5 && form.direccion.length < 201;
+const validateTelefono = () => /^\d{8,10}$/.test(form.telefono);
 
-// Funciones de validación para cada campo
-const validateNombre = () => {
-  return form.nombre.length > 2 && form.nombre.length < 31;
-};
-
-const validateDireccion = () => {
-  return form.direccion.length > 5 && form.direccion.length < 201;
-};
-
-const validateTelefono = () => {
-  return /^\d{8,10}$/.test(form.telefono);
-};
-
-// Función para habilitar/deshabilitar el botón de enviar
+// Función para habilitar o deshabilitar el botón de envío
 const validateForm = () => {
   submitButton.value.disabled = !(validateNombre() && validateDireccion() && validateTelefono());
 };
 
-// Verificación de validaciones al escribir
+// Función para manejar el envío del formulario
+const submit = () => {
+  form.put(route('proveedor.update', props.proveedor.codProveedor), {
+    onSuccess: () => {
+      // Redirigir al listado de proveedores en caso de éxito
+      router.get(route('proveedor.index'));
+    },
+  });
+};
+
+// Verificar la validación de los campos al cargar y al escribir
 watch([() => form.nombre, () => form.direccion, () => form.telefono], () => {
   validateForm();
 });
 </script>
 
 <template>
+  <plantillanav :userName="$page.props.auth.user.name" />
   <AppLayout title="Editar Proveedor">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -66,8 +61,10 @@ watch([() => form.nombre, () => form.direccion, () => form.telefono], () => {
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+        <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+          <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+            <h1 class="text-2xl font-bold text-center mb-6">Editar Proveedor</h1>
+
             <!-- Errores de validación -->
             <div v-if="form.errors.length" class="alert alert-danger">
               <ul>
@@ -78,60 +75,67 @@ watch([() => form.nombre, () => form.direccion, () => form.telefono], () => {
             </div>
 
             <!-- Formulario -->
-            <form @submit.prevent="submit">
+            <form @submit.prevent="submit" novalidate>
               <!-- Nombre -->
-              <div class="mb-3 row">
-                <InputLabel for="nombre" value="Nombre" />
+              <div class="mb-4">
+                <InputLabel for="nombre" value="Nombre" class="bb" />
                 <InputError :message="form.errors.nombre" />
                 <TextInput
                   v-model="form.nombre"
-                  type="text"
                   id="nombre"
-                  class="form-control"
+                  class="mt-1 block w-full cc"
                   placeholder="Ingrese el nombre del proveedor"
                   required
+                  @input="validateForm"
                 />
+                <div v-if="!validateNombre() && form.nombre.length > 0" class="text-red-500 text-sm dd">
+                  * El nombre debe tener entre 3 y 30 caracteres.
+                </div>
               </div>
 
               <!-- Dirección -->
-              <div class="mb-3 row">
-                <InputLabel for="direccion" value="Dirección" />
+              <div class="mb-4">
+                <InputLabel for="direccion" value="Dirección" class="bb" />
                 <InputError :message="form.errors.direccion" />
                 <TextInput
                   v-model="form.direccion"
-                  type="text"
                   id="direccion"
-                  class="form-control"
+                  class="mt-1 block w-full cc"
                   placeholder="Ingrese la dirección del proveedor"
                   required
+                  @input="validateForm"
                 />
+                <div v-if="!validateDireccion() && form.direccion.length > 0" class="text-red-500 text-sm dd">
+                  * La dirección debe tener entre 6 y 200 caracteres.
+                </div>
               </div>
 
               <!-- Teléfono -->
-              <div class="mb-3 row">
-                <InputLabel for="telefono" value="Teléfono" />
+              <div class="mb-4">
+                <InputLabel for="telefono" value="Teléfono" class="bb" />
                 <InputError :message="form.errors.telefono" />
                 <TextInput
                   v-model="form.telefono"
-                  type="tel"
                   id="telefono"
-                  class="form-control"
+                  class="mt-1 block w-full cc"
                   placeholder="Ingrese el teléfono del proveedor"
                   required
+                  @input="validateForm"
                 />
+                <div v-if="!validateTelefono() && form.telefono.length > 0" class="text-red-500 text-sm dd">
+                  * El teléfono debe ser un número de entre 8 y 10 dígitos.
+                </div>
               </div>
 
               <!-- Botones -->
               <div class="text-center mt-4">
-                <Link :href=" route('proveedor.index') " class="btn btn-secondary me-3">
-                    <i class="fas fa-arrow-left"></i> Atrás
+                <Link :href="route('proveedor.index')" class="btn btn-secondary me-3">
+                  <i class="fas fa-arrow-left"></i> Atrás
                 </Link>
-
                 <PrimaryButton
-                  type="submit"
                   ref="submitButton"
-                  :disabled="!validateNombre() || !validateDireccion() || !validateTelefono() || form.processing"
                   class="btn btn-primary"
+                  :disabled="!validateNombre() || !validateDireccion() || !validateTelefono() || form.processing"
                 >
                   <i class="fas fa-pencil-alt"></i> Modificar
                 </PrimaryButton>
@@ -140,6 +144,13 @@ watch([() => form.nombre, () => form.direccion, () => form.telefono], () => {
           </div>
         </div>
       </div>
+      <VisitaFooter />
     </div>
   </AppLayout>
 </template>
+
+<style scoped>
+.py-12 {
+  margin-top: calc(10px + 1rem);
+}
+</style>

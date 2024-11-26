@@ -7,7 +7,7 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Inertia } from '@inertiajs/inertia';
 import plantillanav from '@/Layouts/plantillanav.vue';
-
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibimos los datos del formulario y errores
 const props = defineProps({
@@ -18,18 +18,14 @@ const props = defineProps({
 });
 
 const form = useForm({
-  codServicio: props.precioServicio?.codServicioF || '', 
+  codServicio: props.precioServicio?.codServicioF || '',
   tipo: props.precioServicio?.tipo || '',
   precio: props.precioServicio?.precio || '',
 });
 
 onMounted(() => {
-  console.log("codServicio inicial:", form.codServicio);  // Verifica el valor
+
 });
-
-
-
-// Computed para validar cada campo
 const validateCodServicio = computed(() => form.codServicio !== '');
 const validateTipo = computed(() => form.tipo !== '');
 const validatePrecio = computed(() => {
@@ -47,7 +43,6 @@ const submit = () => {
   });
 };
 
-
 // Revalidación del formulario al cambiar algún campo
 watch([() => form.codServicio, () => form.tipo, () => form.precio], () => {
   validateForm();
@@ -64,48 +59,48 @@ const validateForm = () => {
 </script>
 
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name"/>
   <AppLayout title="Modificar Precio de Servicio">
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">Modificar Precio de Servicio</h2>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight ee">Modificar Precio de Servicio</h2>
     </template>
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+        <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+          <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+            <h1 class="text-2xl font-bold text-center mb-6 ee">Editar Precio de Servicio</h1>
             <form @submit.prevent="submit" novalidate>
               <!-- Servicio -->
-              <div class="mb-3 row">
-                <InputLabel for="codServicio" value="Servicio" />
+              <div class="mb-4">
+                <InputLabel for="codServicio" value="Servicio" class="bb" />
                 <InputError :message="errors.codServicio" />
                 <select
-                    v-model="form.codServicio"
-                    id="codServicio"
-                    class="form-select"
-                    name="codServicio"
-                    required
-                    >
-                    <option value="">Seleccione un servicio</option>
-                    <option
-                        v-for="servicio in props.servicios"
-                        :key="servicio.codServicio"
-                        :value="servicio.codServicio"
-                    >
-                        {{ servicio.nombre }}
-                    </option>
-                    </select>
-
+                  v-model="form.codServicio"
+                  id="codServicio"
+                  class="mt-1 block w-full cc"
+                  name="codServicio"
+                  required
+                >
+                  <option value="">Seleccione un servicio</option>
+                  <option
+                    v-for="servicio in props.servicios"
+                    :key="servicio.codServicio"
+                    :value="servicio.codServicio"
+                  >
+                    {{ servicio.nombre }}
+                  </option>
+                </select>
               </div>
 
               <!-- Tipo -->
-              <div class="mb-3 row">
-                <InputLabel for="tipo" value="Tipo" />
+              <div class="mb-4">
+                <InputLabel for="tipo" value="Tipo" class="bb" />
                 <InputError :message="errors.tipo" />
                 <select
                   v-model="form.tipo"
                   id="tipo"
-                  class="form-select @error('tipo') is-invalid @enderror"
+                  class="mt-1 block w-full cc"
                   name="tipo"
                   required
                 >
@@ -121,25 +116,25 @@ const validateForm = () => {
               </div>
 
               <!-- Precio -->
-              <div class="mb-3 row">
-                <InputLabel for="precio" value="Precio" />
+              <div class="mb-4">
+                <InputLabel for="precio" value="Precio" class="bb" />
                 <InputError :message="errors.precio" />
                 <TextInput
                   v-model="form.precio"
                   type="text"
                   id="precio"
-                  class="form-control @error('precio') is-invalid @enderror"
+                  class="mt-1 block w-full cc"
                   name="precio"
                   required
                 />
-                <div v-if="errors.precio" class="invalid-feedback">
+                <div v-if="errors.precio" class="dd">
                   El precio debe ser un número mayor a 0, incluyendo decimales.
                 </div>
               </div>
 
               <!-- Botones -->
-              <div class="text-center mt-4">
-                <Link :href="route('precioServicio.index')" class="btn btn-secondary me-2">
+              <div class="text-center mt-4 ff">
+                <Link :href="route('precioServicio.index')" class="btn btn-secondary">
                   <i class="fas fa-arrow-left"></i> Atrás
                 </Link>
                 <PrimaryButton
@@ -154,12 +149,13 @@ const validateForm = () => {
           </div>
         </div>
       </div>
+      <VisitaFooter />
     </div>
   </AppLayout>
 </template>
 
 <style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(60px + 1rem);
 }
 </style>

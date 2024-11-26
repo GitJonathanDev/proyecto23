@@ -7,6 +7,7 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Link } from '@inertiajs/vue3';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Propiedades desde Inertia
 const props = defineProps({
@@ -97,7 +98,7 @@ watch([() => form.horaInicio, () => form.horaFin], () => {
 </script>
 
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name" />
   <AppLayout title="Editar Horario">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">Editar Horario</h2>
@@ -105,51 +106,55 @@ watch([() => form.horaInicio, () => form.horaFin], () => {
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+        <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+          <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+            <!-- Título principal -->
+            <h1 class="text-2xl font-bold text-center mb-6">Editar Horario</h1>
+
+            <!-- Formulario -->
             <form @submit.prevent="submit" novalidate>
               <!-- Hora de inicio -->
               <div class="mb-4">
-                <InputLabel for="horaInicio" value="Hora de inicio" />
+                <InputLabel for="horaInicio" value="Hora de inicio" class="bb" />
                 <InputError :message="props.errors.horaInicio" />
                 <TextInput
                   v-model="form.horaInicio"
                   id="horaInicio"
-                  type="time" 
-                  class="mt-1 block w-full"
+                  type="time"
+                  class="mt-1 block w-full cc"
                   required
                 />
-                <div v-if="!validateHoraInicio() && form.horaInicio" class="text-red-500 text-sm">
+                <div v-if="!validateHoraInicio() && form.horaInicio" class="text-red-500 text-sm dd">
                   * La hora de inicio es obligatoria.
                 </div>
               </div>
 
               <!-- Hora de fin -->
               <div class="mb-4">
-                <InputLabel for="horaFin" value="Hora de fin" />
+                <InputLabel for="horaFin" value="Hora de fin" class="bb" />
                 <InputError :message="props.errors.horaFin" />
                 <TextInput
                   v-model="form.horaFin"
                   id="horaFin"
                   type="time"
-                  class="mt-1 block w-full"
+                  class="mt-1 block w-full cc"
                   required
                 />
-                <div v-if="!validateHoraRange() && form.horaFin" class="text-red-500 text-sm">
+                <div v-if="!validateHoraRange() && form.horaFin" class="text-red-500 text-sm dd">
                   * La hora de fin debe ser mayor que la hora de inicio.
                 </div>
               </div>
 
-              <div class="text-center">
+              <div class="text-center mt-4">
                 <!-- Botón de Atrás -->
-                <Link :href="route('horario.index')" class="btn btn-secondary me-2">
+                <Link :href="route('horario.index')" class="btn btn-secondary me-3">
                   <i class="fas fa-arrow-left"></i> Atrás
                 </Link>
+
                 <!-- Botón de Enviar -->
                 <PrimaryButton
                   ref="submitButton"
-                  class="mt-4"
-                  :class="{ 'opacity-25': form.processing }"
+                  class="btn btn-primary"
                   :disabled="!validateForm() || form.processing"
                 >
                   <i class="fas fa-save"></i> Guardar
@@ -159,12 +164,13 @@ watch([() => form.horaInicio, () => form.horaFin], () => {
           </div>
         </div>
       </div>
+      <VisitaFooter />
     </div>
   </AppLayout>
 </template>
 
 <style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(10px + 1rem);
 }
 </style>

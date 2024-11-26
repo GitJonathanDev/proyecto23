@@ -21,7 +21,7 @@ class CompraController extends Controller
             ->when($buscar, function ($query) use ($criterio, $buscar) {
                 return $query->where($criterio, 'like', "%$buscar%");
             })
-            ->paginate(10);
+            ->paginate(5);
         return inertia('Compra/Index', [
             'compras' => $compras,
             'deleteMessage' => session('delete'),
@@ -30,7 +30,7 @@ class CompraController extends Controller
     public function create()
     {
         // $encargado = auth()->user(); // Suponiendo que el encargado es el usuario autenticado.
-        $encargado = Encargado::where('carnetIdentidad', '14623330')->first();
+        $encargado = Encargado::where('carnetIdentidad', '12454859')->first();
         $proveedores = Proveedor::all();
         $productos = Producto::with('categoria')->get();
 
@@ -80,13 +80,16 @@ class CompraController extends Controller
     }
     public function show($codCompra)
     {
-        $compra = Compra::findOrFail($codCompra);
-        $detalleCompra = DetalleCompra::where('codCompra', $codCompra)->get();
+        $compra = Compra::with(['proveedor', 'encargado'])->findOrFail($codCompra); 
+        $detalleCompra = DetalleCompra::with('producto')->where('codCompra', $codCompra)->get();
+    
         return Inertia::render('Compra/Detalle', [
             'compra' => $compra,
             'detalleCompra' => $detalleCompra
         ]);
     }
+    
+
 
     public function buscarProductos(Request $request)
     {

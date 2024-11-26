@@ -4,6 +4,7 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibimos los datos del servicio, horarios y errores del padre
 const props = defineProps(['servicio', 'horarios', 'errors']);
@@ -35,7 +36,7 @@ const validateCodHorarioF = () => {
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name" />
     <AppLayout title="Modificar Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -45,8 +46,10 @@ const validateCodHorarioF = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+                        <h1 class="text-2xl font-bold text-center mb-6">Editar Servicio</h1>
+
                         <!-- Errores de validación -->
                         <div v-if="form.errors" class="alert alert-danger">
                             <ul>
@@ -55,38 +58,48 @@ const validateCodHorarioF = () => {
                         </div>
 
                         <!-- Formulario -->
-                        <form @submit.prevent="submit">
-                            <div class="mb-3 row">
-                                <InputLabel for="nombre" value="Nombre" />
+                        <form @submit.prevent="submit" novalidate>
+                            <!-- Nombre -->
+                            <div class="mb-4">
+                                <InputLabel for="nombre" value="Nombre" class="bb" />
                                 <InputError :message="form.errors.nombre" />
                                 <input 
                                     v-model="form.nombre"
                                     type="text" 
                                     id="nombre" 
-                                    class="form-control"
+                                    class="mt-1 block w-full cc"
                                     placeholder="Ingrese el nombre del servicio"
                                     required 
+                                    @input="validateForm"
                                 />
+                                <div v-if="!validateNombre() && form.nombre.length > 0" class="text-red-500 text-sm dd">
+                                    * El nombre debe tener entre 3 y 150 caracteres.
+                                </div>
                             </div>
 
-                            <div class="mb-3 row">
-                                <InputLabel for="descripcion" value="Descripción" />
+                            <!-- Descripción -->
+                            <div class="mb-4">
+                                <InputLabel for="descripcion" value="Descripción" class="bb" />
                                 <InputError :message="form.errors.descripcion" />
                                 <textarea 
                                     v-model="form.descripcion"
                                     id="descripcion"
-                                    class="form-control"
+                                    class="mt-1 block w-full cc"
                                     placeholder="Ingrese la descripción del servicio"
                                     required
                                 ></textarea>
+                                <div v-if="!validateDescripcion() && form.descripcion.length > 0" class="text-red-500 text-sm dd">
+                                    * La descripción no puede estar vacía.
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="codHorarioF" class="form-label">Horario:</label>
+                            <!-- Horario -->
+                            <div class="mb-4">
+                                <label for="codHorarioF" class="form-label bb">Horario:</label>
                                 <select 
                                     v-model="form.codHorarioF"
                                     id="codHorarioF"
-                                    class="form-select"
+                                    class="mt-1 block w-full cc"
                                     required 
                                 >
                                     <option v-for="horario in props.horarios" :key="horario.codHorario" :value="horario.codHorario">
@@ -94,12 +107,16 @@ const validateCodHorarioF = () => {
                                     </option>
                                 </select>
                                 <InputError :message="form.errors.codHorarioF" />
+                                <div v-if="!validateCodHorarioF()" class="text-red-500 text-sm dd">
+                                    * Debe seleccionar un horario.
+                                </div>
                             </div>
 
+                            <!-- Botones -->
                             <div class="text-center mt-4">
                                 <Link 
                                     :href=" route('servicio.index')" 
-                                    class="btn btn-secondary me-2"
+                                    class="btn btn-secondary me-3"
                                 >
                                     <i class="fas fa-arrow-left"></i> Atrás
                                 </Link>
@@ -115,11 +132,13 @@ const validateCodHorarioF = () => {
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
     </AppLayout>
 </template>
-<style>
+
+<style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(10px + 1rem);
 }
 </style>

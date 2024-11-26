@@ -14,7 +14,7 @@ class UsuarioController extends Controller
 {
     public function index(Request $request)
     {
-    $usuarios = User::with('tipoUsuario')
+    $usuarios = User::with('TipoUsuario')
         ->when($request->criterio && $request->buscar, function ($query) use ($request) {
             return $query->where($request->criterio, 'like', '%' . $request->buscar . '%');
         })
@@ -39,7 +39,7 @@ class UsuarioController extends Controller
             'nombreUsuario' => 'required|string|min:4|max:255|unique:users,name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'codTipoUsuarioF' => 'required|exists:tipoUsuario,codTipoUsuario',
+            'codTipoUsuarioF' => 'required|exists:TipoUsuario,codTipoUsuario',
         ]);
 
         // Si la validación falla, retornamos los errores con Inertia
@@ -75,7 +75,7 @@ class UsuarioController extends Controller
             'name' => 'required|string|min:3|max:255',
             'email' => 'required|email', 
             'password' => 'nullable|string|min:8',
-            'codTipoUsuarioF' => 'required|exists:tipoUsuario,codTipoUsuario',
+            'codTipoUsuarioF' => 'required|exists:TipoUsuario,codTipoUsuario',
         ]);
 
         // Aquí obtenemos el usuario usando 'codUsuario' en vez de 'id'

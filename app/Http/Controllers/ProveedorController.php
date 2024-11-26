@@ -4,21 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Proveedor;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ProveedorController extends Controller
 {
     public function index(Request $request)
-    {
-        $criterio = $request->input('criterio', 'nombre'); 
-        $buscar = $request->input('buscar', '');
-        $proveedores = Proveedor::where($criterio, 'like', '%' . $buscar . '%')
-            ->paginate(10);
+{
+    $user = $request->user(); // Usuario autenticado
+    $tipoUsuario = $user->tipoUsuario; // Relación al tipo de usuario
+    $permisos = $tipoUsuario->permisos->pluck('accion')->toArray(); // Lista de permisos
 
-        return Inertia::render('Proveedor/Index', [
-            'proveedores' => $proveedores
-        ]);
-    }
+    $criterio = $request->input('criterio', 'nombre');
+    $buscar = $request->input('buscar', '');
+    $proveedores = Proveedor::where($criterio, 'like', '%' . $buscar . '%')->paginate(10);
+
+    return Inertia::render('Proveedor/Index', [
+        'proveedores' => $proveedores,
+        'permisos' => $permisos,
+        'buscar' => $buscar,
+    ]);
+}
+
     public function create()
     {
         return Inertia::render('Proveedor/Create');

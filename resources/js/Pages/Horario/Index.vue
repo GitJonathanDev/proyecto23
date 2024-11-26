@@ -34,7 +34,7 @@ const deleteHorario = () => {
 </script>
 
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name"/>
   <AppLayout title="Gestionar Horarios">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">Lista de Horarios</h2>
@@ -42,8 +42,8 @@ const deleteHorario = () => {
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+        <div class=" overflow-hidden shadow-xl sm:rounded-lg divgrande">
+          <div class="p-6 lg:p-8 border-gray-200 divpequeno">
             <h1 class="text-2xl font-bold text-center mb-6">Lista de Horarios</h1>
 
             <!-- Botones y formulario de búsqueda -->
@@ -67,7 +67,7 @@ const deleteHorario = () => {
             <!-- Tabla de horarios -->
             <div class="overflow-x-auto">
               <table class="table-auto w-full text-sm">
-                <thead class="bg-gray-800 text-white">
+                <thead>
                   <tr>
                     <th class="p-3 text-left">Código</th>
                     <th class="p-3 text-left">Hora de Inicio</th>
@@ -131,21 +131,10 @@ const deleteHorario = () => {
 </template>
 
 <style scoped>
-/* Estilo para mejorar la apariencia de los botones y tablas */
 .table-auto th, .table-auto td {
     text-align: left;
     vertical-align: middle;
 }
-
-.table-auto th {
-    background-color: #4B5563; /* Gray background */
-    color: #fff;
-}
-
-.table-auto tr:nth-child(even) {
-    background-color: #F3F4F6; /* Light gray rows */
-}
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -154,53 +143,6 @@ const deleteHorario = () => {
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-}
-
-.btn-outline-secondary {
-    background-color: #F9FAFB;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #E5E7EB;
-}
-
-.btn-primary {
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-    background-color: #2563EB;
-}
-
-.btn-warning {
-    background-color: #F59E0B;
-    color: white;
-}
-
-.btn-warning:hover {
-    background-color: #D97706;
-}
-
-.btn-danger {
-    background-color: #EF4444;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #DC2626;
-}
-
-.btn-secondary {
-    background-color: #E5E7EB;
-    color: #1F2937;
-}
-
-.btn-secondary:hover {
-    background-color: #D1D5DB;
 }
 .py-12 {
   margin-top: calc(60px + 1rem); 

@@ -1,5 +1,5 @@
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Gestionar Clientes">
       <template #header>
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -9,8 +9,8 @@
   
       <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-          <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-            <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+          <div class=" overflow-hidden shadow-xl sm:rounded-lg divgrande">
+            <div class="p-6 lg:p-8 border-gray-200 divpequeno">
               <!-- Título y contenedor de botones (Nuevo cliente y búsqueda) -->
               <h1 class="text-2xl font-bold text-center mb-6">Lista de Clientes</h1>
   
@@ -35,7 +35,7 @@
                     <button type="submit" class="btn btn-outline-secondary flex items-center space-x-2">
                       <i class="fas fa-search"></i>
                       <span>Buscar</span>
-                    </button>
+                    </button> 
                   </div>
                 </form>
               </div>
@@ -43,7 +43,7 @@
               <!-- Tabla de Clientes -->
               <div class="overflow-x-auto">
                 <table class="table-auto w-full text-sm">
-                  <thead class="bg-gray-800 text-white">
+                  <thead>
                     <tr>
                       <th class="p-3 text-left">Carnet de Identidad</th>
                       <th class="p-3 text-left">Nombre</th>
@@ -96,6 +96,7 @@
             </div>
           </div>
         </div>
+        <VisitaFooter />
       </div>
   
       <!-- Modal de Confirmación de Eliminación -->
@@ -121,6 +122,7 @@
   import DialogModal from '@/Components/DialogModal.vue';
   import { usePage } from '@inertiajs/vue3';
   import plantillanav from '@/Layouts/plantillanav.vue';
+  import VisitaFooter from '@/Components/VisitaFooter.vue';
   
   const props = defineProps({
     clientes: Object, // Propiedad para recibir los clientes paginados
@@ -158,21 +160,10 @@
   </script>
   
   <style scoped>
-  /* Estilo para la tabla y los botones */
   .table-auto th, .table-auto td {
     text-align: left;
     vertical-align: middle;
   }
-  
-  .table-auto th {
-    background-color: #4B5563; /* Fondo gris */
-    color: #fff;
-  }
-  
-  .table-auto tr:nth-child(even) {
-    background-color: #F3F4F6; /* Filas de color gris claro */
-  }
-  
   .btn {
     display: inline-flex;
     align-items: center;
@@ -181,56 +172,9 @@
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-  }
-  
-  .btn-outline-secondary {
-    background-color: #F9FAFB;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-  }
-  
-  .btn-outline-secondary:hover {
-    background-color: #E5E7EB;
-  }
-  
-  .btn-primary {
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid transparent;
-  }
-  
-  .btn-primary:hover {
-    background-color: #2563EB;
-  }
-  
-  .btn-warning {
-    background-color: #F59E0B;
-    color: white;
-  }
-  
-  .btn-warning:hover {
-    background-color: #D97706;
-  }
-  
-  .btn-danger {
-    background-color: #EF4444;
-    color: white;
-  }
-  
-  .btn-danger:hover {
-    background-color: #DC2626;
-  }
-  
-  .btn-secondary {
-    background-color: #E5E7EB;
-    color: #1F2937;
-  }
-  
-  .btn-secondary:hover {
-    background-color: #D1D5DB;
-  }
+}
   .py-12 {
   margin-top: calc(60px + 1rem); 
-}
+  }
   </style>
   

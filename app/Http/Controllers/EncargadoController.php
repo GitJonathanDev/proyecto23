@@ -6,85 +6,108 @@ use App\Models\Encargado;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Session;
 
 class EncargadoController extends Controller
 {
     public function index(Request $request)
-   {
-    $vendedores = Encargado::query();
+    {
+        $vendedores = Encargado::query();
 
-    if ($request->filled('buscar')) {
-        $vendedores->where('nombre', 'like', '%' . $request->buscar . '%');
+        if ($request->filled('buscar')) {
+            $vendedores->where('nombre', 'like', '%' . $request->buscar . '%');
+        }
+        $vendedores = $vendedores->with('usuario')->paginate(10); 
+        return Inertia::render('Encargado/Index', [
+            'vendedores' => $vendedores
+        ]);
     }
-    $vendedores = $vendedores->paginate(10); 
-    return Inertia::render('Encargado/Index', [
-        'vendedores' => $vendedores
-    ]);
-    }
+
     public function create()
     {
         return Inertia::render('Encargado/Create');
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'carnetIdentidad' => 'required|digits_between:8,10',
+            'carnetIdentidad' => 'required',
             'nombre' => 'required|string|min:3|max:30',
             'apellidoPaterno' => 'required|string|min:3|max:30',
             'apellidoMaterno' => 'required|string|min:3|max:30',
             'sexo' => 'required|string',
-            'edad' => 'required|integer|min:8|max:100',
-            'telefono' => 'required|digits_between:8,10',
+            'edad' => 'required|integer|min:8|max:70',
+            'telefono' => 'required|min:8|max:10',
             'nombreUsuario' => 'required|string|min:3',
             'email' => 'required|email',
             'password' => 'required|string|min:8',
         ]);
-
-        // Create the Vendedor
-        Vendedor::create($validated);
-
-        return redirect()->route('vendedor.index')->with('success', 'Vendedor registrado correctamente');
+        $tipoUsuario = 2;
+        $user = User::create([
+            'name' => $validated['nombreUsuario'], 
+            'email' => $validated['email'],     
+            'password' => bcrypt($validated['password']), 
+            'codTipoUsuarioF' => $tipoUsuario,
+        ]);
+        $encargado = Encargado::create([
+            'carnetIdentidad' => $validated['carnetIdentidad'],
+            'nombre' => $validated['nombre'],
+            'apellidoPaterno' => $validated['apellidoPaterno'],
+            'apellidoMaterno' => $validated['apellidoMaterno'],
+            'sexo' => $validated['sexo'],
+            'edad' => $validated['edad'],
+            'telefono' => $validated['telefono'],
+            'codUsuarioF' => $user->codUsuario,
+        ]);
+        return redirect()->route('encargado.index')->with('success', 'Encargado registrado correctamente');
     }
-    public function edit(Vendedor $vendedor)
+    public function edit($id)
     {
+        $vendedor = Encargado::findOrFail($id);
         return Inertia::render('Encargado/Edit', [
             'vendedor' => $vendedor,
         ]);
     }
-    public function update(Request $request, Vendedor $vendedor)
+
+    public function update(Request $request, $id)
     {
         // Validación de los datos
         $validated = $request->validate([
-            'carnetIdentidad' => 'required|string|max:10|min:8|unique:vendedores,carnet_identidad,' . $vendedor->id,
+            'carnetIdentidad' => 'required',
             'nombre' => 'required|string|max:255|min:3',
             'apellidoPaterno' => 'required|string|max:255|min:3',
             'apellidoMaterno' => 'required|string|max:255|min:3',
             'sexo' => 'required|string',
             'edad' => 'required|integer|min:8|max:100',
-            'telefono' => 'required|string|max:10|min:8',
-            'nombreUsuario' => 'required|string|min:3|unique:vendedores,nombre_usuario,' . $vendedor->id,
-            'email' => 'required|email|unique:vendedores,email,' . $vendedor->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'telefono' => 'required|max:10|min:8',
         ]);
 
-        // Actualizar los datos del vendedor
-        $vendedor->update([
-            'carnet_identidad' => $validated['carnetIdentidad'],
+        // Obtener el encargado por el ID
+        $encargado = Encargado::findOrFail($id);
+
+        // Actualizar los datos del encargado
+        $encargado->update([
+            'carnetIdentidad' => $validated['carnetIdentidad'],
             'nombre' => $validated['nombre'],
-            'apellido_paterno' => $validated['apellidoPaterno'],
-            'apellido_materno' => $validated['apellidoMaterno'],
+            'apellidoPaterno' => $validated['apellidoPaterno'],
+            'apellidoMaterno' => $validated['apellidoMaterno'],
             'sexo' => $validated['sexo'],
             'edad' => $validated['edad'],
             'telefono' => $validated['telefono'],
-            'nombre_usuario' => $validated['nombreUsuario'],
-            'email' => $validated['email'],
-            'password' => $validated['password'] ? bcrypt($validated['password']) : $vendedor->password, // Solo actualizar si es proporcionada
         ]);
 
+        // Redirigir con mensaje de éxito
         return Inertia::render('Encargado/Edit', [
-            'vendedor' => $vendedor,
-            'sessionSuccess' => 'Vendedor actualizado correctamente.',
+            'vendedor' => $encargado,
+            'sessionSuccess' => 'Encargado actualizado correctamente.',
         ]);
+    }
+    public function destroy($carnetIdentidad)
+    {
+        $vendedor = Encargado::where('carnetIdentidad', $carnetIdentidad)->first();
+        if ($vendedor) {
+            $vendedor->delete();
+            return redirect()->route('encargado.index')->with('success', 'Encargado eliminado correctamente.');
+        }
+        return redirect()->route('encargado.index')->with('error', 'Encargado no encontrado.');
     }
 }

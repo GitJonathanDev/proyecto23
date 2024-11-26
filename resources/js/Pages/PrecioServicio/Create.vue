@@ -7,6 +7,7 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { defineProps } from 'vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibiendo propiedades desde Inertia
 const props = defineProps({
@@ -25,37 +26,26 @@ const form = useForm({
 
 // Referencias para habilitar y deshabilitar el botón
 const submitButton = ref(null);
-const tipoRow = ref(null);
-const mensajeTipo = ref(null);
 
-// Computed para filtrar los tipos disponibles según el servicio seleccionado
+// Computados
 const tiposDisponiblesFiltrados = computed(() => {
     const servicioId = form.codServicioF;
-    if (!servicioId) return [];
-
+    if (!servicioId) return props.tiposDisponibles; // Si no hay servicio seleccionado, mostrar todos los tipos
     const tiposRegistradosServicio = props.tiposRegistrados[servicioId] || [];
-    return props.tiposDisponibles.filter(tipo => !tiposRegistradosServicio.includes(tipo));
+    return props.tiposDisponibles.filter(tipo => !tiposRegistradosServicio.includes(tipo)); // Filtra los tipos disponibles
 });
 
-// Computed para verificar si se debe mostrar el mensaje "No hay tipos disponibles"
-const mostrarMensajeTipo = computed(() => tiposDisponiblesFiltrados.value.length === 0);
+const mostrarMensajeTipo = computed(() => {
+    if (!form.codServicioF || tiposDisponiblesFiltrados.value.length > 0) {
+        return false;
+    }
+    return props.tiposRegistrados[form.codServicioF]?.length > 0;
+});
 
-// Lógica de validación de los campos
-const validateCodServicioF = () => form.codServicioF !== '';
-const validateTipo = () => form.tipo !== '';
-const validatePrecio = () => {
-    const precio = parseFloat(form.precio);
-    return !isNaN(precio) && precio > 0;
-};
-
-// Validar el formulario en general
-const validateForm = () => {
-    const isCodServicioFValid = validateCodServicioF();
-    const isTipoValid = validateTipo();
-    const isPrecioValid = validatePrecio();
-
-    submitButton.value.disabled = !(isCodServicioFValid && isTipoValid && isPrecioValid);
-};
+// Validación
+const validateForm = computed(() => {
+    return form.codServicioF && form.tipo && parseFloat(form.precio) > 0;
+});
 
 // Función para enviar el formulario
 const submit = () => {
@@ -66,44 +56,40 @@ const submit = () => {
     });
 };
 
-// Al montar el componente, inicializamos las opciones de tipo
 onMounted(() => {
-    // Asegura que el formulario se valide correctamente
-    validateForm();
+    validateForm.value; // Para asegurarnos de que la validación se hace al montar
 });
 
-// Reaccionamos a los cambios en el campo `codServicioF` para actualizar los tipos disponibles
-watch(() => form.codServicioF, (newValue, oldValue) => {
-    if (newValue !== oldValue) {
-        form.tipo = ''; // Limpiar el campo tipo cuando se cambia el servicio
-        validateForm(); // Revalidar el formulario
-    }
+// Reaccionamos a los cambios en el formulario
+watch([() => form.codServicioF, () => form.tipo, () => form.precio], () => {
+    // Validar cada vez que uno de los campos cambie
+    validateForm.value; // Actualizar estado de validación
 });
-watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateForm);
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Registrar Precio de Servicio">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Registrar
+                Registrar Precio de Servicio
             </h2>
         </template>
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+                        <h1 class="text-2xl font-bold text-center mb-6 ee">Registrar Precio de Servicio</h1>
                         <form @submit.prevent="submit" novalidate>
                             <!-- Selección de Servicio -->
                             <div class="mb-4">
-                                <InputLabel for="codServicioF" value="Servicio" />
+                                <InputLabel for="codServicioF" value="Servicio" class="bb" />
                                 <InputError :message="errors.codServicioF" />
                                 <select
                                     v-model="form.codServicioF"
                                     id="codServicioF"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full cc"
                                     required
                                 >
                                     <option value="">Seleccione un servicio</option>
@@ -118,13 +104,13 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
                             </div>
 
                             <!-- Selección de Tipo -->
-                            <div class="mb-4" ref="tipoRow" v-show="form.codServicioF">
-                                <InputLabel for="tipo" value="Tipo" />
+                            <div class="mb-4" v-show="form.codServicioF">
+                                <InputLabel for="tipo" value="Tipo" class="bb" />
                                 <InputError :message="errors.tipo" />
                                 <select
                                     v-model="form.tipo"
                                     id="tipo"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full cc"
                                     required
                                 >
                                     <option value="">Seleccione un tipo</option>
@@ -136,33 +122,38 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
                                         {{ tipo }}
                                     </option>
                                 </select>
-                                <div v-show="mostrarMensajeTipo" class="invalid-feedback">
-                                    No hay tipos disponibles para seleccionar.
+                                <div v-show="mostrarMensajeTipo" class="text-red-500 text-sm dd">
+                                    * No hay tipos disponibles para seleccionar.
                                 </div>
                             </div>
 
                             <!-- Campo Precio -->
                             <div class="mb-4">
-                                <InputLabel for="precio" value="Precio" />
+                                <InputLabel for="precio" value="Precio" class="bb" />
                                 <InputError :message="errors.precio" />
                                 <TextInput
                                     v-model="form.precio"
                                     id="precio"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full cc"
                                     type="number"
                                     step="0.01"
                                     placeholder="Ingrese el precio"
                                     required
                                 />
+                                <div v-if="!validateForm && form.precio.length > 0" class="text-red-500 text-sm dd">
+                                    * El precio debe ser mayor a 0.
+                                </div>
                             </div>
-                            <div class="text-center">
+
+                            <!-- Botón Guardar -->
+                            <div class="text-center ff">
                                 <Link href="{{ route('precioServicio.index') }}" class="btn btn-secondary me-3">
                                     <i class="fas fa-arrow-left"></i> Atrás
                                 </Link>
                                 <PrimaryButton
                                     ref="submitButton"
-                                    class="mt-4"
-                                    :disabled="!validateCodServicioF() || !validateTipo() || !validatePrecio() || form.processing"
+                                    class="mt-4 btn-primary"
+                                    :disabled="!validateForm || form.processing"
                                 >
                                     <i class="fas fa-save"></i> Guardar
                                 </PrimaryButton>
@@ -171,15 +162,11 @@ watch([() => form.codServicioF, () => form.tipo, () => form.precio], validateFor
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
     </AppLayout>
 </template>
 
 <style scoped>
-.invalid-feedback {
-    color: red;
-}
-.py-12 {
-  margin-top: calc(60px + 1rem); 
-}
+
 </style>

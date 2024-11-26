@@ -35,10 +35,9 @@ class Producto extends Model
         'codCategoriaF' => 'integer', 
     ];
 
-
     public function categoria()
     {
-        return $this->belongsTo(Categoria::class, 'codCategoriaF', 'codCategoria');
+        return $this->belongsTo(Categoria::class, 'codCategoriaF', 'codCategoria'); // Confirma los nombres de las claves
     }
     public function detalles()
     {

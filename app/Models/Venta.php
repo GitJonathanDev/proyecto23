@@ -57,7 +57,10 @@ class Venta extends Model
         return $this->belongsTo(Pago::class, 'codPagoF', 'codPago');
     }
     
-
+    public function detalleVenta()
+    {
+        return $this->hasMany(DetalleVenta::class, 'codVenta', 'codVenta');
+    }
 
     public $timestamps = false;
 }

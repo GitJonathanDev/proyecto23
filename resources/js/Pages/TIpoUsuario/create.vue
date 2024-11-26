@@ -6,6 +6,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibiendo propiedades desde Inertia
 const props = defineProps({
@@ -50,7 +51,7 @@ watch(() => form.descripcion, () => {
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Registrar Tipo de Usuario">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -60,22 +61,23 @@ watch(() => form.descripcion, () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class=" overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+                        <h1 class="text-2xl font-bold text-center mb-6">Registrar tipo de Usuario</h1>
                         <form @submit.prevent="submit" novalidate>
                             <!-- Campo de Descripción -->
                             <div class="mb-4">
-                                <InputLabel for="descripcion" value="Descripción" />
+                                <InputLabel for="descripcion" value="Descripción" class="bb" />
                                 <InputError :message="errors.descripcion" />
                                 <TextInput 
                                     v-model="form.descripcion"
                                     id="descripcion"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full cc"
                                     placeholder="Ingrese la descripción del tipo de usuario"
                                     required
                                     @input="validateForm"
                                 />
-                                <div v-if="!validateDescripcion() && form.descripcion.length > 0" class="text-red-500 text-sm">
+                                <div v-if="!validateDescripcion() && form.descripcion.length > 0" class="text-red-500 text-sm dd">
                                     * La descripción debe tener entre 3 y 20 caracteres.
                                 </div>
                             </div>
@@ -87,24 +89,27 @@ watch(() => form.descripcion, () => {
                                 </Link>
 
                                 <!-- Botón de Enviar -->
-                                <PrimaryButton 
+                                <PrimaryButton
+                                 
                                     ref="submitButton"
-                                    class="mt-4"
+                                    class="mt-4 btn-primary"
                                     :class="{ 'opacity-25': form.processing }"
                                     :disabled="!validateDescripcion() || form.processing"
+                                    
                                 >
-                                    <i class="fas fa-save"></i> Guardar
+                                    <i class="fas fa-save "></i> Guardar
                                 </PrimaryButton>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
     </AppLayout>
 </template>
 <style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(10px + 1rem); 
 }
 </style>

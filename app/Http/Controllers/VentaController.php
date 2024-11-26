@@ -32,7 +32,7 @@ class VentaController extends Controller
     {
         $productos = Producto::all(); 
         // $encargado = auth()->user();
-        $encargado = Encargado::where('carnetIdentidad', '14623330')->first();
+        $encargado = Encargado::where('carnetIdentidad', '12454859')->first();
         $categoria = Categoria::all();
         $clientes = Cliente::all();
 
@@ -55,7 +55,7 @@ class VentaController extends Controller
             'codEncargadoF' => 'required|exists:encargado,carnetIdentidad',
         ]);
 
-        $codEncargadoF = 14623330;
+        $codEncargadoF = 12454859;
         $venta = new Venta();
         $venta->fechaVenta = $request->fechaVenta;
         $venta->codEncargadoF = $codEncargadoF; 
@@ -95,7 +95,7 @@ class VentaController extends Controller
     public function show($codVenta)
     {
         $venta = Venta::with(['cliente', 'encargado'])->findOrFail($codVenta);
-        $detalleVenta = DetalleVenta::where('codVenta', $codVenta)->get();
+        $detalleVenta = DetalleVenta::with('producto')->where('codVenta', $codVenta)->get();
         $pago = Pago::where('codPago', $venta->codPagoF)->first();
         return Inertia::render('Venta/Detalle', [
             'venta' => $venta,
@@ -103,6 +103,7 @@ class VentaController extends Controller
             'pago' => $pago
         ]);
     }
+
     public function update(Request $request, $codVenta)
     {
         $request->validate([
@@ -128,3 +129,4 @@ class VentaController extends Controller
         return redirect()->route('venta.index')->with('delete', 'Venta eliminada exitosamente.');
     }
 }
+

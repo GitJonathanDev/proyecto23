@@ -5,6 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 const props = defineProps(['tipoUsuario', 'errors']);
 const form = useForm({
@@ -21,7 +22,7 @@ const validateDescripcion = () => {
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name" />
     <AppLayout title="Modificar Tipo de Usuario">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -31,8 +32,11 @@ const validateDescripcion = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+                        <!-- Título principal -->
+                        <h1 class="text-2xl font-bold text-center mb-6">Editar Tipo de Usuario</h1>
+
                         <!-- Alerta de éxito -->
                         <div v-if="form.errors.success" class="alert alert-success">
                             {{ form.errors.success }}
@@ -44,25 +48,26 @@ const validateDescripcion = () => {
                         </div>
 
                         <!-- Formulario -->
-                        <form @submit.prevent="submit">
-                            <div class="mb-3 row">
-                                <InputLabel for="descripcion" value="Descripción" />
+                        <form @submit.prevent="submit" novalidate>
+                            <div class="mb-4">
+                                <InputLabel for="descripcion" value="Descripción" class="bb" />
                                 <InputError :message="form.errors.descripcion" />
-                                <TextInput 
+                                <TextInput
                                     v-model="form.descripcion"
-                                    type="text" 
-                                    id="descripcion" 
-                                    class="form-control"
+                                    type="text"
+                                    id="descripcion"
+                                    class="mt-1 block w-full cc"
                                     placeholder="Ingrese la descripción del tipo de usuario"
-                                    required 
+                                    required
+                                    @input="validateForm"
                                 />
                             </div>
 
                             <!-- Botones -->
                             <div class="text-center mt-4">
                                 <Link 
-                                    href="{{ route('tipoUsuario.index') }}" 
-                                    class="btn btn-secondary me-2"
+                                    :href="route('tipoUsuario.index')" 
+                                    class="btn btn-secondary me-3"
                                 >
                                     <i class="fas fa-arrow-left"></i> Atrás
                                 </Link>
@@ -78,11 +83,14 @@ const validateDescripcion = () => {
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
     </AppLayout>
 </template>
+
 <style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+    margin-top: calc(60px + 1rem); 
 }
+
 </style>

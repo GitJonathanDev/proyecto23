@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
@@ -23,7 +23,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('register'), {
+    form.post(route('register.store'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
@@ -223,38 +223,38 @@ const submit = () => {
 <style scoped>
 .background {
     background-image: url('img/fondo.jpg');
-    background-repeat: repeat; /* Hace que la imagen de fondo se repita */
-    background-size: auto; /* Ajusta la imagen sin distorsionarla */
+    background-repeat: repeat; 
+    background-size: auto; 
     background-position: center; 
     height: 100vh; 
     display: flex;
     align-items: center; 
     justify-content: center;
-    overflow: auto; /* Permite el desplazamiento si el contenido excede el tamaño de la pantalla */
+    overflow: auto; 
 }
 
 .auth-card {
-    padding: 2rem; /* Espaciado alrededor del contenido */
-    border-radius: 0.5rem; /* Bordes redondeados */
-    width: 90%; /* Ancho adaptable */
-    max-width: 400px; /* Máximo ancho */
-    overflow: auto; /* Permite el desplazamiento dentro del formulario si es necesario */
+    padding: 2rem; 
+    border-radius: 0.5rem; 
+    width: 90%; 
+    max-width: 400px; 
+    overflow: auto; 
 }
 
 .input-field,
 .select-field {
     margin-top: 0.5rem;
-    padding: 0.75rem; /* Espaciado interno */
-    border: 1px solid #d1d5db; /* Color de borde */
-    border-radius: 0.375rem; /* Bordes redondeados */
-    transition: border-color 0.3s; /* Transición suave para el borde */
-    width: 100%; /* Aseguramos que el select ocupe todo el ancho disponible */
+    padding: 0.75rem; 
+    border: 1px solid #d1d5db; 
+    border-radius: 0.375rem; 
+    transition: border-color 0.3s;
+    width: 100%; 
 }
 
 .input-field:focus,
 .select-field:focus {
-    border-color: #4f46e5; /* Color del borde al enfocar */
-    outline: none; /* Sin borde de enfoque predeterminado */
+    border-color: #4f46e5; 
+    outline: none; 
 }
 
 h2 {

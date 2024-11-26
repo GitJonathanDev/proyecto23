@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Validator; 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class MembresiaController extends Controller
 {
@@ -30,7 +31,7 @@ class MembresiaController extends Controller
     public function create()
     {
         $membresia = Membresia::all();
-        $encargado = Encargado::where('carnetIdentidad', '14623330')->first();
+        $encargado = Encargado::where('carnetIdentidad', '12454859')->first();
         $clientes = Cliente::all();
         $encargados = Encargado::all();
         $servicios = Servicio::with('precios', 'horario')->get();
@@ -43,44 +44,74 @@ class MembresiaController extends Controller
         ]);
     }
     public function store(Request $request)
-    {
-        $request->validate([
-            'descripcion' => 'required|string',
-            'codClienteF' => 'required|exists:cliente,carnetIdentidad',
-        ]);
-        $montoTotal = 0;
-        $detalles = [];
-        $pago = Pago::create([
-            'monto' => $montoTotal,
-            'fechaPago' => now()->toDateString(),
-            'codClienteF' => $request->codClienteF,
-        ]);
+{
+    // Validación de los datos enviados
+    $request->validate([
+        'descripcion' => 'required|string',
+        'codClienteF' => 'required|exists:cliente,carnetIdentidad',
+        'servicios' => 'required|array|min:1', // Validación para el array de servicios
+        'servicios.*.codServicio' => 'required|exists:servicio,codServicio', // Validación para cada servicio individual
+        'servicios.*.tipoServicioF' => 'required|string',  // Asegurando que cada servicio tenga el tipo de servicio
+        'servicios.*.fechaFin' => 'required|date', // Validación para la fecha de fin
+        'servicios.*.subTotal' => 'required|numeric', // Validación para el subtotal
+    ]);
 
-        $codEncargadoF = 14623330; 
-        $membresia = Membresia::create([
-            'descripcion' => $request->descripcion,
-            'precioTotal' => $montoTotal,
-            'codClienteF' => $request->codClienteF,
-            'codEncargadoF' => $codEncargadoF,
-            'codPagoF' => $pago->codPago,
+    // Crear pago
+    $montoTotal = $request->precioTotal;
+    $pago = Pago::create([
+        'monto' => $montoTotal,
+        'fechaPago' => now()->toDateString(),
+        'codClienteF' => $request->codClienteF,
+    ]);
+
+    // Crear membresía
+    $codEncargadoF = 12454859;
+    $membresia = Membresia::create([
+        'descripcion' => $request->descripcion,
+        'precioTotal' => $montoTotal,
+        'codClienteF' => $request->codClienteF,
+        'codEncargadoF' => $codEncargadoF,
+        'codPagoF' => $pago->codPago,
+    ]);
+
+    // Crear detalles de membresía para cada servicio seleccionado
+    foreach ($request->servicios as $servicio) {
+        DetalleMembresia::create([
+            'fechaInicio' => $servicio['fechaInicio'],
+            'fechaFin' => $servicio['fechaFin'],
+            'subTotal' => $servicio['subTotal'],
+            'tipo' => $servicio['tipoServicioF'],
+            'codMembresia' => $membresia->codMembresia,
+            'codServicio' => $servicio['codServicio'],
         ]);
-        foreach ($request->subTotal as $index => $subtotal) {
-            $montoTotal += (float)$subtotal;
-            DetalleMembresia::create([
-                'fechaInicio' => $request->fechaInicio,
-                'fechaFin' => $request->fechaFin,
-                'subTotal' => $subtotal,
-                'tipo' => $request->tipoServicioF, 
-                'codMembresia' => $membresia->codMembresia,
-                'codServicio' => $request->codServiciosF,
-            ]);
-        }
-        
-        return redirect()->route('membresia.index', $membresia->codMembresia);
     }
 
+    return redirect()->route('membresia.index', $membresia->codMembresia);
+}
 
+    private function calcularFechaFin($servicios)
+    {
+        $fechaFin = Carbon::now();
 
+        foreach ($servicios as $servicio) {
+            $fechaFinServicio = Carbon::parse($servicio['fechaFin']);
+            if ($fechaFinServicio > $fechaFin) {
+                $fechaFin = $fechaFinServicio;
+            }
+        }
+
+        return $fechaFin->toDateString();
+    }
+
+    private function calcularTotalServicios($servicios)
+    {
+        $total = 0;
+        foreach ($servicios as $servicio) {
+            $total += $servicio['precio'];
+        }
+
+        return $total;
+    }
     public function show($id)
 {
     $detalleMembresia = DetalleMembresia::with('membresia', 'servicio', 'servicio.horario')
@@ -90,6 +121,47 @@ class MembresiaController extends Controller
     return Inertia::render('Membresia/Detalle', [
         'detalleMembresia' => $detalleMembresia
     ]);
+}
+public function mostrarMembresias()
+{
+    // Obtener el cliente basado en el usuario autenticado
+    $cliente = Cliente::where('codUsuarioF', Auth::id())->firstOrFail();
+
+    // Obtener las membresías asociadas al cliente
+    $membresias = Membresia::with([
+        'detalles.servicio',
+        'detalles.servicio.horario' // Obtener horario de servicio
+    ])
+    ->where('codClienteF', $cliente->carnetIdentidad)
+    ->get();
+
+    // Para cada detalle de membresía, calculamos el estado
+    foreach ($membresias as $membresia) {
+        foreach ($membresia->detalles as $detalle) {
+            // Calculamos el estado
+            $detalle->estado = $this->calcularEstado($detalle->fechaFin);
+        }
+    }
+
+    // Redirigir a la ruta 'membresia-cliente' pasando las membresías
+    return Inertia::render('VistaCliente/membresiacliente', [
+        'membresias' => $membresias
+    ]);
+}
+
+private function calcularEstado($fechaFin)
+{
+    // Fecha actual
+    $fechaActual = Carbon::now();
+
+    // Comprobar si está vencida, próxima a expirar o activa
+    if ($fechaActual->gt($fechaFin)) {
+        return 'Vencida';
+    } elseif ($fechaActual->diffInDays($fechaFin) <= 3) {
+        return 'Próximo a Expirar';
+    } else {
+        return 'Activo';
+    }
 }
     public function destroy(Membresia $membresia)
     {

@@ -23,8 +23,10 @@
             <input type="hidden" v-model="form.codClienteF">
             <input type="hidden" v-model="form.telefono">
             <input type="hidden" v-model="form.codEncargadoF">
-            <!-- Campos ocultos para los subtotales de los servicios -->
-            <input type="hidden" v-for="(servicio, index) in serviciosSeleccionados" :key="'subtotal-' + index" :value="(servicio.precio * servicio.cantidad).toFixed(2)" :name="'subTotal[' + index + ']'">
+            <input type="hidden" v-model="form.subTotal">
+            <input type="hidden" v-model="form.montoTotal">
+
+
             <!-- Buscar Cliente -->
             <div class="mb-4">
               <label for="buscarCliente" class="block text-sm font-medium text-gray-700">Buscar Cliente:</label>
@@ -88,7 +90,7 @@
       </div>
     </div>
 
-    <!-- Modal para Buscar Servicio -->
+   <!-- Modal para Buscar Servicio -->
 <div v-if="showModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
   <div class="bg-white rounded-lg p-6 max-w-4xl w-full">
     <div class="flex justify-between items-center">
@@ -115,6 +117,7 @@
             <th class="px-4 py-2">Tipo</th>
             <th class="px-4 py-2">Horario</th>
             <th class="px-4 py-2">Cantidad</th>
+            <th class="px-4 py-2">Fecha de Inicio</th> <!-- Nueva columna -->
             <th class="px-4 py-2">Opción</th>
           </tr>
         </thead>
@@ -123,8 +126,16 @@
             <td class="px-4 py-2">{{ servicio.nombre }}</td>
             <td class="px-4 py-2">{{ servicio.descripcion }}</td>
             <td class="px-4 py-2">
-              <select v-model="selectedTipo[servicio.codServicio]" class="w-full p-2 border border-gray-300 rounded-lg">
-                <option v-for="precio in servicio.precios" :key="precio.codPrecioServicio" :value="precio.codPrecioServicio">
+              <select
+                v-model="selectedTipo[servicio.codServicio]"
+                class="w-full p-2 border border-gray-300 rounded-lg"
+                :disabled="isTipoSeleccionado(servicio)"
+              >
+                <option
+                  v-for="precio in servicio.precios"
+                  :key="precio.codPrecioServicio"
+                  :value="precio.codPrecioServicio"
+                >
                   {{ precio.tipo }} - {{ precio.precio }} Bs.
                 </option>
               </select>
@@ -136,12 +147,28 @@
                 v-model="cantidad[servicio.codServicio]"
                 min="1"
                 value="1"
-                class="p-2 border border-gray-300 rounded-lg"
+                class="p-1 w-16 border border-gray-300 rounded-lg"
                 @input="updateFechaFin(servicio)"
+                :disabled="isTipoSeleccionado(servicio)" 
               />
             </td>
             <td class="px-4 py-2">
-              <button type="button" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700" @click="selectServicio(servicio)">
+              <input
+                type="date"
+                v-model="fechaInicio[servicio.codServicio]"
+                class="p-2 border border-gray-300 rounded-lg"
+                @change="updateFechaFin(servicio)" 
+                :disabled="isTipoSeleccionado(servicio)"
+                :value="fechaInicio[servicio.codServicio] || currentDate()"
+              />
+            </td>
+            <td class="px-4 py-2">
+              <button
+                type="button"
+                class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700"
+                @click="selectServicio(servicio)"
+                :disabled="isTipoSeleccionado(servicio)"
+              >
                 Seleccionar
               </button>
             </td>
@@ -155,6 +182,7 @@
     </div>
   </div>
 </div>
+
 <div class="mt-8 max-w-4xl mx-auto">
         <div class="bg-white shadow-lg rounded-lg border-t-4 border-green-500">
           <div class="bg-green-600 text-white p-4 rounded-t-lg">
@@ -203,14 +231,12 @@
         </div>
       </div>
     </div>
-  </div>
+</div>
 </template>
-
 <script>
 import { ref, reactive, computed } from "vue";
 import { useForm, router } from '@inertiajs/vue3';
 import plantillanav from '@/Layouts/plantillanav.vue';
-
 import axios from "axios";
 
 export default {
@@ -230,6 +256,9 @@ export default {
       fechaFin: "",
       codServiciosF: "",
       tipoServicioF: "",
+      subTotal: 0,
+      montoTotal: 0,
+      servicios: [],
     });
 
     const clientes = ref([]);
@@ -239,7 +268,7 @@ export default {
     const search = reactive({
       nombreServicio: "",
     });
-
+    const qrUrl = ref('');
     const selectedTipo = reactive({});
     const cantidad = reactive({});  // Mantener la cantidad de cada servicio
     const errors = ref([]);
@@ -251,13 +280,21 @@ export default {
         serviciosSeleccionados.value.length === 0
       );
     });
+    const submit = () => {
+      form.post(route('consumirServicio'), {
+        // No hacemos ninguna redirección aquí, solo enviamos el formulario.
+        onSuccess: () => {
+          console.log('Formulario enviado exitosamente'); // O cualquier otra acción si lo deseas.
+        },
+      });
+    };
 
     const precioTotal = computed(() => {
-  return serviciosSeleccionados.value.reduce(
-    (total, servicio) => total + servicio.subTotal,  // Usar subTotal en lugar de precio * cantidad
-    0
-  );
-});
+      return serviciosSeleccionados.value.reduce(
+        (total, servicio) => total + servicio.subTotal,  // Usar subTotal en lugar de precio * cantidad
+        0
+      );
+    });
 
     const searchClient = async () => {
       if (form.clienteSearch.length >= 2) {
@@ -288,55 +325,105 @@ export default {
         console.error(error);
       }
     };
+    
+    const fechaInicio = reactive({});  // Mantener la fecha de inicio de cada servicio
+      const currentDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];  // Formato YYYY-MM-DD
+      };
 
-    const selectServicio = (servicio) => {
-  // Asignar la fecha de inicio como la fecha actual
-  form.fechaInicio = new Date().toISOString().split("T")[0]; // Formato YYYY-MM-DD
+      const selectServicio = (servicio) => {
+  // Verificar si el servicio ya está seleccionado
+  const servicioExistente = serviciosSeleccionados.value.find(s => s.codServicio === servicio.codServicio);
 
+  if (servicioExistente) {
+    // Ya está seleccionado, no hacer nada
+    return;
+  }
+
+  // Utilizamos la fecha de inicio seleccionada o la actual
+  const fechaInicioSeleccionada = fechaInicio[servicio.codServicio] || currentDate();
+
+  // Obtenemos el tipo de servicio seleccionado
   const tipoSeleccionado = selectedTipo[servicio.codServicio];
   const precioSeleccionado = servicio.precios.find(precio => precio.codPrecioServicio === tipoSeleccionado);
-  const cantidadSeleccionada = cantidad[servicio.codServicio] || 1;  
-  const fechaFinCalculada = calcularFechaFin(form.fechaInicio, precioSeleccionado.tipo, cantidadSeleccionada);
+  const cantidadSeleccionada = cantidad[servicio.codServicio] || 1;
   
-  // Asignamos fechaFin al formulario
+  // Calcular la fecha de fin
+  const fechaFinCalculada = calcularFechaFin(fechaInicioSeleccionada, precioSeleccionado.tipo, cantidadSeleccionada);
+
+  // Asignamos las fechas al formulario, pero asegurándonos de que son individuales por servicio
+  form.fechaInicio = fechaInicioSeleccionada;
   form.fechaFin = fechaFinCalculada;
-
-  // Asignar el codServicioF y tipoServicioF
   form.codServiciosF = servicio.codServicio;
-  form.tipoServicioF = precioSeleccionado ? precioSeleccionado.tipo : 'Desconocido'; // Aquí agregamos el tipo al formulario
+  form.tipoServicioF = precioSeleccionado ? precioSeleccionado.tipo : 'Desconocido';
 
-  // Calcular el subtotal
-  const subtotal = precioSeleccionado ? precioSeleccionado.precio * cantidadSeleccionada : 0;
+  const subTotal = precioSeleccionado.precio * cantidadSeleccionada;
 
-  // Agregar el servicio seleccionado a la lista de servicios
-  serviciosSeleccionados.value.push({
+  if (isNaN(subTotal) || subTotal <= 0) {
+    console.error('El subTotal no es válido:', subTotal);
+    return;
+  }
+
+  form.subTotal = subTotal;
+
+  // Asegurarnos de que la fecha de inicio y la fecha de fin son únicas por servicio
+  const servicioConFecha = {
     ...servicio,
     tipo: precioSeleccionado ? precioSeleccionado.tipo : 'Desconocido',
     precio: precioSeleccionado ? precioSeleccionado.precio : 0,
     cantidad: cantidadSeleccionada,
     fechaFin: fechaFinCalculada,
-    subTotal: subtotal,  // Agregar el subtotal
-  });
+    fechaInicio: fechaInicioSeleccionada, // Asegurarnos de que cada servicio tenga su propia fecha de inicio
+    subTotal: subTotal,
+  };
+
+  serviciosSeleccionados.value.push(servicioConFecha);
+
+  form.precioTotal = precioTotal.value;
+  form.montoTotal = serviciosSeleccionados.value.reduce((total, servicio) => total + servicio.subTotal, 0);
 
   showModal.value = false;
   verificarEstadoBoton();
 };
 
+const isTipoSeleccionado = (servicio) => {
+  return serviciosSeleccionados.value.some((s) => s.codServicio === servicio.codServicio);
+};
     const removeServicio = (index) => {
-        serviciosSeleccionados.value.splice(index, 1);
-      };
+      serviciosSeleccionados.value.splice(index, 1);
+    };
 
-      const handleSubmit = () => {
-        form.post(route('membresia.store'), {
-          onSuccess: () => {
-            router.get(route('membresia.index'));
-          },
-          onError: (err) => {
-            errors.value = err;
-          }
-        });
-      };
+    const handleSubmit = () => {
+  // Preparar los datos de los servicios seleccionados para enviarlos
+  const serviciosData = serviciosSeleccionados.value.map(servicio => ({
+    codServicio: servicio.codServicio,
+    tipoServicioF: servicio.tipo,
+    fechaInicio: servicio.fechaInicio, 
+    fechaFin: servicio.fechaFin,
+    subTotal: servicio.subTotal
+  }));
 
+  // Añadir los servicios al formulario
+  form.servicios = serviciosData;
+
+  // Enviar el formulario con los datos estructurados
+  form.post(route('membresia.store'))
+    .then(() => {
+      router.get(route('membresia.index'));
+    })
+    .catch((error) => {
+      // Depurar el objeto de error
+      console.error("Error completo:", error);
+      if (error.response) {
+        console.error("Errores en la respuesta:", error.response.data.errors);
+      } else if (error.request) {
+        console.error("No se recibió respuesta:", error.request);
+      } else {
+        console.error("Error desconocido:", error.message);
+      }
+    });
+};
 
 
     const loadAllServices = async () => {
@@ -353,32 +440,31 @@ export default {
     };
 
     const calcularFechaFin = (fechaInicio, tipo, cantidad) => {
-  const fecha = new Date(fechaInicio);  // Crea una nueva fecha a partir de la fecha de inicio
-  if (tipo === "Diario") {
-    fecha.setDate(fecha.getDate() + cantidad);  // Suma días
-  } else if (tipo === "Mensual") {
-    fecha.setMonth(fecha.getMonth() + cantidad);  // Suma meses
-  } else if (tipo === "Anual") {
-    fecha.setFullYear(fecha.getFullYear() + cantidad);  // Suma años
-  }
-  // Retorna la fecha en formato YYYY-MM-DD
-  return fecha.toISOString().split("T")[0]; 
-};
+      const fecha = new Date(fechaInicio);  // Crea una nueva fecha a partir de la fecha de inicio
+      if (tipo === "Diario") {
+        fecha.setDate(fecha.getDate() + cantidad);  // Suma días
+      } else if (tipo === "Mensual") {
+        fecha.setMonth(fecha.getMonth() + cantidad);  // Suma meses
+      } else if (tipo === "Anual") {
+        fecha.setFullYear(fecha.getFullYear() + cantidad);  // Suma años
+      }
+      // Retorna la fecha en formato YYYY-MM-DD
+      return fecha.toISOString().split("T")[0]; 
+    };
 
     const updateFechaFin = (servicio) => {
-      const tipoSeleccionado = selectedTipo[servicio.codServicio];
-      const precioSeleccionado = servicio.precios.find(precio => precio.codPrecioServicio === tipoSeleccionado);
+  const tipoSeleccionado = selectedTipo[servicio.codServicio];
+  const precioSeleccionado = servicio.precios.find(precio => precio.codPrecioServicio === tipoSeleccionado);
+  const cantidadSeleccionada = cantidad[servicio.codServicio] || 1;
+  const fechaSeleccionada = fechaInicio[servicio.codServicio] || currentDate();
+  const fechaFinCalculada = calcularFechaFin(fechaSeleccionada, precioSeleccionado.tipo, cantidadSeleccionada);
 
-      const cantidadSeleccionada = cantidad[servicio.codServicio] || 1;  // Valor predeterminado es 1
-
-      const fechaFinCalculada = calcularFechaFin(new Date().toISOString().split("T")[0], precioSeleccionado.tipo, cantidadSeleccionada);
-
-      // Actualiza la fecha de fin del servicio en el array de serviciosSeleccionados
-      const servicioIndex = serviciosSeleccionados.value.findIndex(s => s.codServicio === servicio.codServicio);
-      if (servicioIndex !== -1) {
-        serviciosSeleccionados.value[servicioIndex].fechaFin = fechaFinCalculada;
-      }
-    };
+  // Actualiza la fecha de fin del servicio en el array de serviciosSeleccionados
+  const servicioIndex = serviciosSeleccionados.value.findIndex(s => s.codServicio === servicio.codServicio);
+  if (servicioIndex !== -1) {
+    serviciosSeleccionados.value[servicioIndex].fechaFin = fechaFinCalculada;
+  }
+};
 
     const verificarEstadoBoton = () => {
       const hayServiciosSeleccionados = serviciosSeleccionados.value.length > 0;
@@ -396,24 +482,26 @@ export default {
       form,
       clientes,
       servicios,
-      serviciosSeleccionados,
       showModal,
       search,
+      qrUrl,
       selectedTipo,
       cantidad,
-      precioTotal,
+      serviciosSeleccionados,
       isSubmitDisabled,
+      precioTotal,
       errors,
-      searchClient,
-      selectClient,
-      selectServicio,
-      searchServices,
-      removeServicio,
       handleSubmit,
-      verificarEstadoBoton,
-      calcularFechaFin,
-      updateFechaFin,
+      removeServicio,
+      selectClient,
+      searchClient,
+      searchServices,
+      selectServicio,
       showServicesModal,
+      updateFechaFin,
+      fechaInicio,
+      isTipoSeleccionado,
+      currentDate,
     };
   },
 };

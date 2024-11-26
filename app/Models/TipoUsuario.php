@@ -18,4 +18,9 @@ class TipoUsuario extends Model
         'descripcion' => 'string',
         'codTipoUsuario' => 'integer'
     ];
+    public function permisos()
+    {
+        return $this->belongsToMany(Permiso::class, 'TipoUsuarioPermiso', 'codTipoUsuarioF', 'codPermisoF');
+    }
+    
 }

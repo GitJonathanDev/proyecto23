@@ -4,11 +4,16 @@ import { router, Link } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
 
 // Propiedades recibidas desde Inertia
 const props = defineProps({
-    proveedores: Object
+    proveedores: Object,
+    permisos: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 // Estado para manejar la visibilidad del modal y el proveedor seleccionado
@@ -31,7 +36,7 @@ const deleteProveedor = () => {
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Gestionar Proveedores">
         <template #header>
             <h1 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -41,17 +46,24 @@ const deleteProveedor = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
                         <h1 class="text-2xl font-bold text-center mb-6">Lista de Proveedores</h1>
 
                         <!-- Contenedor de los botones (Nuevo proveedor y búsqueda) -->
                         <div class="flex justify-between items-center mb-6">
                             <!-- Nuevo proveedor -->
-                            <Link :href="route('proveedor.create')" class="btn btn-primary inline-flex items-center space-x-2">
-                                <i class="fas fa-plus"></i>
-                                <span>Registrar</span>
-                            </Link>
+                            <Link 
+    v-if="Array.isArray(permisos) && permisos.includes('registrar')" 
+    :href="route('proveedor.create')" 
+    class="btn btn-primary inline-flex items-center space-x-2"
+>
+    <i class="fas fa-plus"></i>
+    <span>Registrar</span>
+</Link>
+<p v-if="!Array.isArray(permisos)">La propiedad permisos no es un array.</p>
+<p v-if="Array.isArray(permisos) && !permisos.includes('registrar')">No tienes permiso para registrar nuevos proveedores.</p>
+
 
                             <!-- Formulario de búsqueda -->
                             <form :action="route('proveedor.index')" method="get" class="flex space-x-2">
@@ -73,7 +85,7 @@ const deleteProveedor = () => {
                         <!-- Tabla de proveedores -->
                         <div class="overflow-x-auto">
                             <table class="table-auto w-full text-sm">
-                                <thead class="bg-gray-800 text-white">
+                                <thead>
                                     <tr>
                                         <th class="p-3 text-left">Código</th>
                                         <th class="p-3 text-left">Nombre</th>
@@ -90,12 +102,20 @@ const deleteProveedor = () => {
                                         <td class="p-3">{{ item.telefono }}</td>
                                         <td class="p-3 text-center">
                                             <!-- Editar -->
-                                            <Link :href="route('proveedor.edit', item.codProveedor)" class="btn btn-warning btn-sm mx-1">
+                                            <Link 
+                                                v-if="Array.isArray(permisos) && permisos.includes('editar')" 
+                                                :href="route('proveedor.edit', item.codProveedor)" 
+                                                class="btn btn-warning btn-sm mx-1"
+                                            >
                                                 <i class="fas fa-edit"></i> Editar
                                             </Link>
 
                                             <!-- Eliminar -->
-                                            <button @click="confirmDeleteProveedor(item)" class="btn btn-danger btn-sm mx-1">
+                                            <button 
+                                                v-if="Array.isArray(permisos) && permisos.includes('eliminar')" 
+                                                @click="confirmDeleteProveedor(item)" 
+                                                class="btn btn-danger btn-sm mx-1"
+                                            >
                                                 <i class="fas fa-trash"></i> Eliminar
                                             </button>
                                         </td>
@@ -120,6 +140,7 @@ const deleteProveedor = () => {
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
 
         <!-- Modal de confirmación de eliminación -->
@@ -138,22 +159,12 @@ const deleteProveedor = () => {
     </AppLayout>
 </template>
 
+
 <style scoped>
-/* Estilo para mejorar la apariencia de los botones y tablas */
 .table-auto th, .table-auto td {
     text-align: left;
     vertical-align: middle;
 }
-
-.table-auto th {
-    background-color: #4B5563; /* Gray background */
-    color: #fff;
-}
-
-.table-auto tr:nth-child(even) {
-    background-color: #F3F4F6; /* Light gray rows */
-}
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -162,53 +173,6 @@ const deleteProveedor = () => {
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-}
-
-.btn-outline-secondary {
-    background-color: #F9FAFB;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #E5E7EB;
-}
-
-.btn-primary {
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-    background-color: #2563EB;
-}
-
-.btn-warning {
-    background-color: #F59E0B;
-    color: white;
-}
-
-.btn-warning:hover {
-    background-color: #D97706;
-}
-
-.btn-danger {
-    background-color: #EF4444;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #DC2626;
-}
-
-.btn-secondary {
-    background-color: #E5E7EB;
-    color: #1F2937;
-}
-
-.btn-secondary:hover {
-    background-color: #D1D5DB;
 }
 .py-12 {
   margin-top: calc(60px + 1rem); 

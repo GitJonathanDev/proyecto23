@@ -1,13 +1,12 @@
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name"/>
   <AppLayout title="Realizar Compra">
     <template #header>
       <h2 class="font-semibold text-2xl text-gray-800 leading-tight">Realizar Compra</h2>
     </template>
-
+    <div class="divgrande rounded-2xl mb-12" >
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <!-- Formulario de compra -->
         <form @submit.prevent="submitCompra" class="space-y-6">
           <!-- Errores -->
           <div v-if="errors.length" class="alert alert-danger bg-red-100 text-red-800 p-4 rounded-md">
@@ -20,14 +19,14 @@
           <input type="hidden" v-model="totalCompraInput" />
 
           <div class="form-group">
-            <label for="encargado" class="block text-sm font-medium text-gray-700">Encargado:</label>
+            <label for="encargado" class="block text-sm font-medium text-gray-700 bb">Encargado:</label>
             <input type="hidden" v-model="codEncargadoF" />
             <p class="text-lg font-semibold">{{ encargado.nombre }} {{ encargado.apellidoPaterno }} {{ encargado.apellidoMaterno }}</p>
           </div>
 
           <div class="form-group">
-            <label for="proveedor" class="block text-sm font-medium text-gray-700">Proveedor:</label>
-            <select v-model="codProveedorF" class="form-select w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+            <label for="proveedor" class="block text-sm font-medium text-gray-700 bb">Proveedor:</label>
+            <select v-model="codProveedorF" class="form-select w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cc" required>
               <option v-for="proveedor in proveedores" :key="proveedor.codProveedor" :value="proveedor.codProveedor">
                 {{ proveedor.nombre }} - {{ proveedor.direccion }} - {{ proveedor.telefono }}
               </option>
@@ -35,8 +34,8 @@
           </div>
 
           <div class="form-group">
-            <label for="fechacompra" class="block text-sm font-medium text-gray-700">Fecha:</label>
-            <input type="date" v-model="fechaCompra" class="form-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required />
+            <label for="fechacompra" class="block text-sm font-medium text-gray-700 bb">Fecha:</label>
+            <input type="date" v-model="fechaCompra" class="form-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 cc" required />
           </div>
           <div class="flex space-x-4">
             <button type="button" class="btn btn-primary mb-3 bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600" @click="openBuscarProductoModal">
@@ -55,18 +54,18 @@
           </div>
 
           <a :href="route('compra.index')" class="btn btn-secondary mb-3 bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600">
-            <i class="fas fa-arrow-left"></i> Volver
+            <i class="fas fa-arrow-left mt-5"></i> Volver
           </a>
         </form>
 
         <!-- Modal de búsqueda de productos -->
         <DialogModal :show="showBuscarProductoModal">
           <template #title>
-            <h5 class="modal-title text-xl font-semibold text-gray-800">Buscar Producto</h5>
+            <h5 class="modal-title cc text-xl font-semibold text-gray-800 bb">Buscar Producto</h5>
           </template>
           <template #content>
             <div class="form-group mb-4">
-              <label for="nombreProducto" class="block text-sm font-medium text-gray-700">Buscar por Nombre:</label>
+              <label for="nombreProducto" class="block cc text-sm font-medium text-gray-700 bb">Buscar por Nombre:</label>
               <input
                 type="text"
                 v-model="nombreProducto"
@@ -75,100 +74,106 @@
               />
             </div>
 
-            <div class="table-responsive overflow-x-auto">
-              <table class="table table-striped w-full text-sm">
-                <thead class="bg-gray-100">
-                  <tr>
-                    <th class="py-2 px-4 text-left">Nombre</th>
-                    <th class="py-2 px-4 text-left">Precio</th>
-                    <th class="py-2 px-4 text-left">Stock</th>
-                    <th class="py-2 px-4 text-left">Categoría</th>
-                    <th class="py-2 px-4 text-left">Imagen</th>
-                    <th class="py-2 px-4 text-left">Opción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="producto in productos" :key="producto.codProducto">
-                    <td class="py-2 px-4">{{ producto.nombre }}</td>
-                    <td class="py-2 px-4">{{ producto.precio }} Bs.</td>
-                    <td class="py-2 px-4">{{ producto.stock }}</td>
-                    <td class="py-2 px-4">{{ producto.categoria.nombre }}</td>
-                    <td class="py-2 px-4">
-                      <img
-                        v-if="producto.imagen_url"
-                        :src="`/storage/uploads/${producto.imagen_url}`"
-                        alt="Imagen del producto"
-                        class="img-thumbnail w-24 h-24 object-cover"
-                      />
-                      <span v-else>No tiene imagen</span>
-                    </td>
-                    <td class="py-2 px-4">
-                      <button
-                        type="button"
-                        class="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-                        @click="seleccionarProducto(producto)"
-                      >
-                        Seleccionar
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <div class="overflow-x-auto mt-4">
+  <table class="table-auto w-full text-sm">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="p-3 text-left">Nombre</th>
+        <th class="p-3 text-left">Precio</th>
+        <th class="p-3 text-left">Stock</th>
+        <th class="p-3 text-left">Categoría</th>
+        <th class="p-3 text-left">Imagen</th>
+        <th class="p-3 text-center">Opción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="producto in productos" :key="producto.codProducto" class="border-b">
+        <td class="p-3">{{ producto.nombre }}</td>
+        <td class="p-3">{{ producto.precio }} Bs.</td>
+        <td class="p-3">{{ producto.stock }}</td>
+        <td class="p-3">{{ producto.categoria?.nombre ?? 'No disponible' }}</td>
+        <td class="p-3">
+          <img
+            v-if="producto.imagen_url"
+            :src="`/storage/uploads/${producto.imagen_url}`"
+            alt="Imagen del producto"
+            class="img-thumbnail w-24 h-24 object-cover"
+          />
+          <span v-else>No tiene imagen</span>
+        </td>
+        <td class="p-3 text-center">
+          <button
+            type="button"
+            class="btn-primary text-white p-2 rounded-md "
+            @click="seleccionarProducto(producto)"
+          >
+            Seleccionar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
           </template>
           <template #footer>
-            <button type="button" class="btn btn-secondary bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600" @click="showBuscarProductoModal = false">
+            <button type="button" class="btn btn-primary bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600" @click="showBuscarProductoModal = false">
               Cerrar
             </button>
           </template>
         </DialogModal>
 
         <!-- Productos seleccionados -->
-        <div class="mt-6">
-          <h3 class="text-lg font-semibold text-gray-800">Productos Seleccionados</h3>
-          <table class="table table-striped w-full text-sm mt-4">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="py-2 px-4 text-left">Nombre</th>
-                <th class="py-2 px-4 text-left">Cantidad</th>
-                <th class="py-2 px-4 text-left">Precio</th>
-                <th class="py-2 px-4 text-left">Subtotal</th>
-                <th class="py-2 px-4 text-left">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="producto in productosSeleccionados" :key="producto.id">
-                <td class="py-2 px-4">{{ producto.nombre }}</td>
-                <td class="py-2 px-4">
-                  <input
-                    type="number"
-                    v-model="producto.cantidad"
-                    min="1"
-                    class="form-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    @input="calcularTotalCompra"
-                  />
-                </td>
-                <td class="py-2 px-4">{{ producto.precio }} Bs.</td>
-                <td class="py-2 px-4">{{ (producto.cantidad * producto.precio).toFixed(2) }} Bs.</td>
-                <td class="py-2 px-4">
-                  <button
-                    type="button"
-                    class="bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
-                    @click="quitarProducto(producto.id)"
-                  >
-                    <i class="fas fa-times"></i> Quitar
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+<div class="mt-6">
+  <h3 class="text-lg font-semibold text-gray-800 bb">Productos Seleccionados</h3>
+  <div class="overflow-x-auto mt-4">
+    <table class="table-auto w-full text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="p-3 text-left">Nombre</th>
+          <th class="p-3 text-left">Cantidad</th>
+          <th class="p-3 text-left">Precio</th>
+          <th class="p-3 text-left">Subtotal</th>
+          <th class="p-3 text-center">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="producto in productosSeleccionados" :key="producto.id" class="border-b">
+          <td class="p-3">{{ producto.nombre }}</td>
+          <td class="p-3">
+            <input
+              type="number"
+              v-model="producto.cantidad"
+              min="1"
+              class="form-input w-full cc p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              @input="calcularTotalCompra"
+            />
+          </td>
+          <td class="p-3">{{ producto.precio }} Bs.</td>
+          <td class="p-3">{{ (producto.cantidad * producto.precio).toFixed(2) }} Bs.</td>
+          <td class="p-3 text-center">
+            <button
+              type="button"
+              class="btn-primary text-white p-2 rounded-md "
+              @click="quitarProducto(producto.id)"
+            >
+              <i class="fas fa-times"></i> Quitar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-        <div class="mt-6">
-          <h3 class="text-lg font-semibold text-gray-800">Total de la Compra</h3>
-          <p class="text-xl font-bold text-green-600">{{ totalCompra.toFixed(2) }} Bs.</p>
+
+        <div class="mt-6 border-solid">
+          <h3 class="text-lg font-semibold text-gray-800 bb">Total de la Compra</h3>
+          <p class="text-2xl font-bold bb pp">{{ totalCompra.toFixed(2) }} Bs.</p>
         </div>
       </div>
+    </div>
+    <VisitaFooter />
     </div>
   </AppLayout>
 </template>
@@ -178,6 +183,7 @@ import { ref, computed, watch } from 'vue';
 import { router, usePage } from '@inertiajs/vue3';
 import DialogModal from '@/Components/DialogModal.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 const { props } = usePage();
 const encargado = props.encargado;
@@ -259,5 +265,8 @@ watch(productosSeleccionados, calcularTotalCompra, { deep: true });
 <style scoped>
 .py-12 {
   margin-top: calc(60px + 1rem); 
+}
+.pp{
+  font-size: 40px;
 }
 </style>

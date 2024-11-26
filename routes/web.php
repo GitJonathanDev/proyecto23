@@ -17,8 +17,19 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\Auth\CustomLoginController;
 use App\Http\Controllers\MembresiaController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\VentaClienteController;
 use App\Http\Controllers\EstadisticasController;
+use App\Http\Controllers\VisitaController;
+use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ReporteVentaController;
+use App\Http\Middleware\VisitaPaginaMiddleware;
+use App\Http\Middleware\VerificarCliente;
+use App\Http\Middleware\VerificarPersonal;
+use App\Http\Middleware\EnsureAuthenticated;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MenuDinamicoController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -38,28 +49,55 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('/vista-cliente', function () {
-    return Inertia::render('VistaCliente/compracliente');
-})->name('vista-cliente');
-Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
-    // Route::middleware('auth')->group(function () {
-    //     Route::get('/cliente', [ClientController::class, 'dashboard'])->name('cliente');
-    //     Route::get('/encargado/dashboard', [ManagerController::class, 'dashboard'])->name('encargado');
-    //     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin');
-    // });
+Route::get('/api/visitas', [VisitaController::class, 'obtenerVisitas'])->name('api.visitas');
+
+Route::middleware([EnsureAuthenticated::class, VisitaPaginaMiddleware::class])->group(function () {
+    Route::get('/vista-cliente', function () {
+        return Inertia::render('VistaCliente/compracliente');
+    })->middleware(VerificarCliente::class)->name('vista-cliente');
+
+    Route::get('/membresias', [MembresiaController::class, 'mostrarMembresias'])
+        ->middleware(VerificarCliente::class)
+        ->name('mostrar.membresias');
+
+    Route::get('/detalle-compra', function () {
+        return Inertia::render('VistaCliente/detallecompracliente');
+    })->middleware(VerificarCliente::class)->name('detalle-compra');
+
+    
+    Route::get('/venta/index', [VentaClienteController::class, 'index'])->name('ventaCliente.index');
+    Route::get('/api/categorias/{codCategoria}/productos', [VentaClienteController::class, 'getProductos'])->name('venta.getProductos');
+    Route::get('/api/venta/productos', [VentaClienteController::class, 'obtenerProductos'])->name('venta.obtenerProductos');
+    Route::get('/comprar/{idsYCantidades}', [VentaClienteController::class, 'mostrarDetalles'])->name('comprar.detalle');
+
+    Route::post('/venta/create', [VentaClienteController::class, 'store']);
 
 
-Route::prefix('tipoUsuario')->group(function () {
-    Route::get('index', [TipoUsuarioController::class, 'index'])->name('tipoUsuario.index');
-    Route::get('create', [TipoUsuarioController::class, 'create'])->name('tipoUsuario.create');
-    Route::post('store', [TipoUsuarioController::class, 'store'])->name('tipoUsuario.store');
-    Route::get('edit/{codTipoUsuario}', [TipoUsuarioController::class, 'edit'])->name('tipoUsuario.edit');
-    Route::put('update/{codTipoUsuario}', [TipoUsuarioController::class, 'update'])->name('tipoUsuario.update');
-    Route::delete('eliminar/{codTipoUsuario}', [TipoUsuarioController::class, 'destroy'])->name('tipoUsuario.destroy');
-    Route::get('buscar', [TipoUsuarioController::class, 'buscarClientes'])->name('tipoUsuario.buscar');
+
 });
+Route::middleware([EnsureAuthenticated::class, VisitaPaginaMiddleware::class, VerificarPersonal::class])->group(function () {
+Route::get('/menu-options', [MenuController::class, 'getMenuOptions'])->middleware('auth')->name('menus');
 
-Route::prefix('usuario')->group(function () {
+Route::get('/search', [SearchController::class, 'search'])->name('search'); // Ruta para la búsqueda
+
+    
+Route::get('/reportes/ventas', [ReporteVentaController::class, 'index'])->name('reportes.ventas');
+Route::get('/reportes/compras', [ReporteVentaController::class, 'indexCompras'])->name('reportes.compras');
+
+    Route::post('register', [RegisterController::class, 'store'])->name('register.store');
+
+
+    Route::prefix('tipoUsuario')->group(function () {
+        Route::get('index', [TipoUsuarioController::class, 'index'])->name('tipoUsuario.index');
+        Route::get('create', [TipoUsuarioController::class, 'create'])->name('tipoUsuario.create');
+        Route::post('store', [TipoUsuarioController::class, 'store'])->name('tipoUsuario.store');
+        Route::get('edit/{codTipoUsuario}', [TipoUsuarioController::class, 'edit'])->name('tipoUsuario.edit');
+        Route::put('update/{codTipoUsuario}', [TipoUsuarioController::class, 'update'])->name('tipoUsuario.update');
+        Route::delete('eliminar/{codTipoUsuario}', [TipoUsuarioController::class, 'destroy'])->name('tipoUsuario.destroy');
+        Route::get('buscar', [TipoUsuarioController::class, 'buscarClientes'])->name('tipoUsuario.buscar');
+    });
+
+    Route::prefix('usuario')->group(function () {
         Route::get('index', [UsuarioController::class, 'index'])->name('usuario.index');
         Route::get('create', [UsuarioController::class, 'create'])->name('usuario.create');
         Route::post('store', [UsuarioController::class, 'store'])->name('usuario.store');
@@ -77,17 +115,19 @@ Route::prefix('usuario')->group(function () {
         Route::put('update/{carnetIdentidad}', [ClienteController::class, 'update'])->name('cliente.update');
         Route::delete('eliminar/{carnetIdentidad}', [ClienteController::class, 'destroy'])->name('cliente.destroy');
         Route::post('ci-ya-existe', [ClienteController::class, 'ciYaExiste'])->name('ci-ya-existe');
-        Route::get('buscar', [ClienteController::class, 'index'])->name('clientes.buscar'); 
+        Route::get('buscar', [ClienteController::class, 'index'])->name('clientes.buscar');
         Route::get('seleccionCliente/{carnetIdentidad}', [MembresiaController::class, 'seleccionCliente'])->name('cliente.seleccion');
     });
-
+    Route::get('/permisos', function () {
+        return Inertia::render('permisos');
+    })->name('permisos');
     Route::prefix('encargado')->group(function () {
         Route::get('index', [EncargadoController::class, 'index'])->name('encargado.index');
         Route::get('create', [EncargadoController::class, 'create'])->name('encargado.create');
         Route::post('store', [EncargadoController::class, 'store'])->name('encargado.store');
         Route::get('edit/{carnetIdentidad}', [EncargadoController::class, 'edit'])->name('encargado.edit');
         Route::put('update/{carnetIdentidad}', [EncargadoController::class, 'update'])->name('encargado.update');
-        Route::delete('eliminar/{carnetIdentidad}', [EncargadoController::class, 'destroy'])->name('encargado.destroy');
+        Route::delete('eliminar/{carnetIdentidad}', [EncargadoController::class, 'destroy'])->name('vendedor.destroy');
         Route::post('ci-ya-existe', [EncargadoController::class, 'ciYaExiste'])->name('ci-ya-existes');
     });
 
@@ -98,7 +138,8 @@ Route::prefix('usuario')->group(function () {
         Route::post('store', [CategoriaController::class, 'store'])->name('categoria.store');
         Route::get('edit/{codCategoria}', [CategoriaController::class, 'edit'])->name('categoria.edit');
         Route::put('update/{codCategoria}', [CategoriaController::class, 'update'])->name('categoria.update');
-        Route::delete('eliminar/{codCategoria}', [CategoriaController::class, 'destroy'])->name('categoria.destroy');
+        Route::delete('eliminar/{categoria}', [CategoriaController::class, 'destroy'])->name('categoria.destroy');
+
     });
 
     Route::prefix('proveedor')->group(function () {
@@ -127,6 +168,8 @@ Route::prefix('usuario')->group(function () {
         Route::put('update/{codHorario}', [HorarioController::class, 'update'])->name('horario.update');
         Route::delete('eliminar/{codHorario}', [HorarioController::class, 'destroy'])->name('horario.destroy');
     });
+
+
 
     // Gestionar servicio
     Route::prefix('servicio')->group(function () {
@@ -163,21 +206,50 @@ Route::prefix('usuario')->group(function () {
         Route::get('show/{membresia}', [MembresiaController::class, 'show'])->name('membresia.show');
         Route::delete('destroy/{membresia}', [MembresiaController::class, 'destroy'])->name('membresia.destroy');
         // Route::get('/clientes/buscar', [ClienteController::class, 'buscarCliente'])->name('clientes.buscar');
-    });  
+    });
     Route::get('/clientes/buscar', [ClienteController::class, 'buscar'])->name('clientes.buscar');
     Route::get('/servicios/buscar', [ServicioController::class, 'buscar'])->name('servicios.buscar');
     Route::get('/servicios/todos', [ServicioController::class, 'servicios']);
 
-Route::prefix('venta')->group(function () {
-    Route::get('/index', [VentaController::class, 'index'])->name('venta.index');
-    Route::get('create', [VentaController::class, 'create'])->name('venta.create');
-    Route::get('{codVenta}', [VentaController::class, 'show'])->name('venta.show');
-    Route::post('/store', [VentaController::class, 'store'])->name('venta.store');
-    Route::put('update/{codVenta}', [VentaController::class, 'update'])->name('venta.update');
-    Route::delete('destroy/{codVenta}', [VentaController::class, 'destroy'])->name('venta.destroy');
+
+    Route::prefix('venta')->group(function () {
+        Route::get('/index', [VentaController::class, 'index'])->name('venta.index');
+        Route::get('create', [VentaController::class, 'create'])->name('venta.create');
+        Route::get('{codVenta}', [VentaController::class, 'show'])->name('venta.show');
+        Route::post('/store', [VentaController::class, 'store'])->name('venta.store');
+        Route::put('update/{codVenta}', [VentaController::class, 'update'])->name('venta.update');
+        Route::delete('destroy/{codVenta}', [VentaController::class, 'destroy'])->name('venta.destroy');
+    });
+    Route::get('/estadisticas', [EstadisticasController::class, 'index'])->name('encargado');
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+
+
+
+    // Rutas para Menús
+    Route::get('/menus', [MenuDinamicoController::class, 'listarMenus']);
+    Route::post('/menus', [MenuDinamicoController::class, 'crearMenu']);
+    Route::put('/menus/{codMenu}', [MenuDinamicoController::class, 'actualizarMenu']);
+    Route::delete('/menus/{codMenu}', [MenuDinamicoController::class, 'eliminarMenu']);
+    
+    // Rutas para Opciones
+    Route::get('/menus/{codMenu}/opciones', [MenuDinamicoController::class, 'listarOpciones']);
+    Route::post('/opciones', [MenuDinamicoController::class, 'crearOpcion']);
+    Route::put('/opciones/{codOpcion}', [MenuDinamicoController::class, 'actualizarOpcion']);
+    Route::delete('/opciones/{codOpcion}', [MenuDinamicoController::class, 'eliminarOpcion']);
+    
+    // Rutas para Permisos
+    Route::get('/opciones/{codOpcion}/permisos', [MenuDinamicoController::class, 'listarPermisos']);
+    Route::post('/permisos', [MenuDinamicoController::class, 'crearPermiso']);
+    Route::delete('/permisos/{codPermiso}', [MenuDinamicoController::class, 'eliminarPermiso']);
+    
+    // Rutas para Tipos de Usuario con Permisos
+    Route::get('/permisos/{codPermiso}/tiposUsuario', [MenuDinamicoController::class, 'listarTiposUsuario']);
+    Route::post('/permisos/{codPermiso}/tiposUsuario', [MenuDinamicoController::class, 'agregarTipoUsuario']);
+    Route::delete('/permisos/{codPermiso}/tiposUsuario/{codTipoUsuario}', [MenuDinamicoController::class, 'quitarTipoUsuario']);
+    
+    
 });
 
-
 Route::post('/login', [CustomLoginController::class, 'login'])->name('login');
-Route::get('/estadisticas', [EstadisticasController::class, 'index'])->name('encargado');
-Route::get('/admin', [AdminController::class, 'index'])->name('admin');
+Route::post('/logout', [CustomLoginController::class, 'logout'])->name('logout');
+

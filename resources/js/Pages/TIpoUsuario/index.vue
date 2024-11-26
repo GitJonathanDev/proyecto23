@@ -5,6 +5,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import TextInput from '@/Components/TextInput.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 const props = defineProps({
     tipoUsuarios: Object
@@ -30,7 +31,7 @@ const deleteTipoUsuario = () => {
 </script>
 
 <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Gestionar Tipos de Usuario">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -40,8 +41,8 @@ const deleteTipoUsuario = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class=" overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8  border-gray-200 divpequeno">
                         <h1 class="text-2xl font-bold text-center mb-6">Lista de Tipos de Usuario</h1>
 
                         <!-- Contenedor de los botones (Nuevo tipo de usuario y búsqueda) -->
@@ -65,7 +66,7 @@ const deleteTipoUsuario = () => {
                         <!-- Tabla de tipos de usuario -->
                         <div class="overflow-x-auto">
                             <table class="table-auto w-full text-sm">
-                                <thead class="bg-gray-800 text-white">
+                                <thead>
                                     <tr>
                                         <th class="p-3 text-left">Código</th>
                                         <th class="p-3 text-left">Descripción</th>
@@ -108,6 +109,7 @@ const deleteTipoUsuario = () => {
                     </div>
                 </div>
             </div>
+            <VisitaFooter />
         </div>
 
         <!-- Modal de confirmación de eliminación -->
@@ -131,16 +133,6 @@ const deleteTipoUsuario = () => {
     text-align: left;
     vertical-align: middle;
 }
-
-.table-auto th {
-    background-color: #4B5563; /* Gray background */
-    color: #fff;
-}
-
-.table-auto tr:nth-child(even) {
-    background-color: #F3F4F6; /* Light gray rows */
-}
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -150,54 +142,7 @@ const deleteTipoUsuario = () => {
     font-weight: 600;
     cursor: pointer;
 }
-
-.btn-outline-secondary {
-    background-color: #F9FAFB;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #E5E7EB;
-}
-
-.btn-primary {
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-    background-color: #2563EB;
-}
-
-.btn-warning {
-    background-color: #F59E0B;
-    color: white;
-}
-
-.btn-warning:hover {
-    background-color: #D97706;
-}
-
-.btn-danger {
-    background-color: #EF4444;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #DC2626;
-}
-
-.btn-secondary {
-    background-color: #E5E7EB;
-    color: #1F2937;
-}
-
-.btn-secondary:hover {
-    background-color: #D1D5DB;
-}
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(10px + 1rem); 
 }
 </style>

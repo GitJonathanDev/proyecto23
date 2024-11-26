@@ -1,5 +1,6 @@
 <template>
     <div class="container">
+      <plantillanav :userName="$page.props.auth.user.name"/>
       <h1 class="stats-header">Estadísticas del Gimnasio Body Fit</h1>
       <div class="stats-grid">
         <div class="stats-card total-members">
@@ -34,13 +35,21 @@
         <canvas id="topSellingProductsChart"></canvas>
       </div>
     </div>
+    <VisitaFooter />
   </template>
+
   
   <script>
   import { defineComponent, onMounted } from 'vue';
+  import VisitaFooter from '@/Components/VisitaFooter.vue';
+  import plantillanav from '@/Layouts/plantillanav.vue';
   import { Chart } from 'chart.js';
   
   export default defineComponent({
+    components: {
+    plantillanav,
+    VisitaFooter,  // Componente de barra de navegación del cliente
+  },
     props: {
       stats: Object, // Recibe las estadísticas desde Inertia
     },

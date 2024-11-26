@@ -9,37 +9,15 @@ class Menu extends Model
 {
     use HasFactory;
 
-    protected $table = 'Menu';
-
-
-    protected $primaryKey = 'id';
-
-  
-    public $timestamps = false;
-
+    protected $table = 'menu'; 
+    protected $primaryKey = 'codMenu'; 
 
     protected $fillable = [
         'nombre',
-        'url',
-        'icono',
-        'codTipoUsuarioF',
-        'padreId'
+        'icono'
     ];
-
-
-    public function padre()
+    public function opciones()
     {
-        return $this->belongsTo(Menu::class, 'padreId', 'id');
-    }
-
-    public function hijos()
-    {
-        return $this->hasMany(Menu::class, 'padreId', 'id');
-    }
-
-
-    public function tipoUsuario()
-    {
-        return $this->belongsTo(TipoUsuario::class, 'codTipoUsuarioF', 'codTipoUsuario');
+        return $this->hasMany(Opcion::class, 'codMenuF', 'codMenu');
     }
 }

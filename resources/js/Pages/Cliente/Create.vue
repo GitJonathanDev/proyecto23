@@ -1,5 +1,5 @@
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name"/>
     <div class="container mx-auto p-4">
       <h1 class="text-3xl font-semibold text-center mb-6">Registrar Cliente</h1>
   
@@ -100,6 +100,7 @@
           </PrimaryButton>
         </div>
       </form>
+      <VisitaFooter />
     </div>
   </template>
   
@@ -108,6 +109,7 @@
   import { ref } from 'vue';
   import { router, Link } from '@inertiajs/vue3';
   import PrimaryButton from '@/Components/PrimaryButton.vue';
+  import VisitaFooter from '@/Components/VisitaFooter.vue';
   </script>
   <script>
   

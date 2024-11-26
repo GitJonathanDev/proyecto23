@@ -1,5 +1,5 @@
   <template>
-    <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
       <div class="container">
         <h2 class="text-center my-4">EDITAR CLIENTE</h2>
         <form @submit.prevent="submitForm" class="needs-validation" novalidate>
@@ -140,10 +140,12 @@
             </button>
           </div>
         </form>
+        <VisitaFooter />
       </div>
     </template>
     <script setup>
     import plantillanav from '@/Layouts/plantillanav.vue';
+    import VisitaFooter from '@/Components/VisitaFooter.vue';
     </script>
     <script>
     export default {

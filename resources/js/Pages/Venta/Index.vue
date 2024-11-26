@@ -4,6 +4,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibimos las ventas como props desde Inertia
 const { ventas } = usePage().props;
@@ -20,7 +21,7 @@ const handleSearch = () => {
 </script>
 
 <template>
-  <plantillanav/>
+  <plantillanav :userName="$page.props.auth.user.name"/>
   <AppLayout title="Gestionar Ventas">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -30,8 +31,8 @@ const handleSearch = () => {
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+        <div class=" overflow-hidden shadow-xl sm:rounded-lg divgrande">
+          <div class="p-6 lg:p-8 border-gray-200 divpequeno">
             <h1 class="text-2xl font-bold text-center mb-6">Lista de Ventas</h1>
 
             <!-- Contenedor de los botones (Nuevo tipo de usuario y búsqueda) -->
@@ -60,7 +61,7 @@ const handleSearch = () => {
             <!-- Tabla de ventas -->
             <div class="overflow-x-auto">
               <table class="table-auto w-full text-sm">
-                <thead class="bg-gray-800 text-white">
+                <thead>
                   <tr>
                     <th class="p-3 text-left">Código de Venta</th>
                     <th class="p-3 text-left">Fecha de Venta</th>
@@ -78,7 +79,7 @@ const handleSearch = () => {
                     <td class="p-3">{{ venta.cliente.nombre }}</td>
                     <td class="p-3">{{ venta.encargado.nombre }}</td>
                     <td class="p-3 text-center">
-                      <Link :href="route('venta.show', venta.codVenta)" class="btn btn-info btn-sm mx-1">
+                      <Link :href="route('venta.show', venta.codVenta)" class="btn btn-primary btn-sm mx-1">
                         <i class="fas fa-eye"></i> Ver Detalle
                       </Link>
                     </td>
@@ -103,6 +104,7 @@ const handleSearch = () => {
           </div>
         </div>
       </div>
+      <VisitaFooter />
     </div>
   </AppLayout>
 </template>
@@ -112,16 +114,6 @@ const handleSearch = () => {
   text-align: left;
   vertical-align: middle;
 }
-
-.table-auto th {
-  background-color: #4B5563; /* Gray background */
-  color: #fff;
-}
-
-.table-auto tr:nth-child(even) {
-  background-color: #F3F4F6; /* Light gray rows */
-}
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -131,32 +123,6 @@ const handleSearch = () => {
   font-weight: 600;
   cursor: pointer;
 }
-
-.btn-outline-secondary {
-  background-color: #F9FAFB;
-  color: #4B5563;
-  border: 1px solid #D1D5DB;
-}
-
-.btn-outline-secondary:hover {
-  background-color: #E5E7EB;
-}
-
-.btn-primary {
-  background-color: #3B82F6;
-  color: white;
-  border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-  background-color: #2563EB;
-}
-
-.btn-info {
-  background-color: #38BDF8;
-  color: white;
-}
-
 .btn-info:hover {
   background-color: #0EA5E9;
 }

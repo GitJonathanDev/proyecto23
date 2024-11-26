@@ -21,7 +21,7 @@ class PrecioServicioController extends Controller
             ->when($criterio == 'precio', function ($query) use ($buscar) {
                 return $query->where('precio', 'like', '%' . $buscar . '%');
             })
-            ->paginate(10);
+            ->paginate(5);
 
         return Inertia::render('PrecioServicio/Index', [
             'preciosServicio' => $preciosServicio,
@@ -31,76 +31,93 @@ class PrecioServicioController extends Controller
     }
     public function create()
     {
-
         $servicios = Servicio::all();
-        $tiposRegistrados = PrecioServicio::select('codServicioF', 'tipo')
-            ->get()
-            ->groupBy('codServicioF');
-
-        $tiposDisponibles = ['Diario', 'Mensual', 'Anual']; 
+        $tiposRegistrados = [];
+        foreach ($servicios as $servicio) {
+            $tiposRegistrados[$servicio->codServicio] = PrecioServicio::where('codServicioF', $servicio->codServicio)
+                ->distinct('tipo')
+                ->pluck('tipo')
+                ->toArray();
+        }
+        $tiposDisponibles = ['Diario', 'Mensual', 'Anual'];
         return Inertia::render('PrecioServicio/Create', [
             'servicios' => $servicios,
-            'tiposRegistrados' => $tiposRegistrados,
-            'tiposDisponibles' => $tiposDisponibles,
-            'errors' => session('errors') ?? [],
+            'tiposRegistrados' => $tiposRegistrados,  // Tipos registrados por servicio
+            'tiposDisponibles' => $tiposDisponibles,  // Tipos disponibles globales
         ]);
     }
     public function store(Request $request)
     {
         $request->validate([
-            'tipo' => 'required|string|max:255',
-            'precio' => 'required|numeric',
-            'codServicioF' => 'required|exists:servicio,codServicio', 
+            'codServicioF' => 'required|exists:servicio,codServicio',  
+            'tipo' => 'required|string|max:255',  
+            'precio' => 'required|numeric|min:0',
         ]);
+        $existingPrecioServicio = PrecioServicio::where('codServicioF', $request->codServicioF)
+                                                 ->where('tipo', $request->tipo)
+                                                 ->first();
+
+        if ($existingPrecioServicio) {
+            return redirect()->back()->withInput()->withErrors(['tipo' => 'Ya existe un precio de servicio con este tipo para el servicio seleccionado.']);
+        }
         PrecioServicio::create([
+            'codServicioF' => $request->codServicioF,
             'tipo' => $request->tipo,
             'precio' => $request->precio,
-            'codServicioF' => $request->codServicioF,
         ]);
         return redirect()->route('precioServicio.index')->with('success', 'Precio de servicio registrado exitosamente.');
     }
-    public function edit($id)
+
+    public function edit($codPrecioServicio)
     {
-        $precioServicio = PrecioServicio::findOrFail($id);
-        $servicios = Servicio::all(); 
-        $tiposDisponibles = ['Diario', 'Mensual', 'Anual']; 
-        return inertia('PrecioServicio/Edit', [
+        $precioServicio = PrecioServicio::findOrFail($codPrecioServicio);
+        $servicios = Servicio::all();
+
+        $tiposRegistrados = PrecioServicio::where('codServicioF', $precioServicio->codServicioF)
+                                           ->where('codPrecioServicio', '!=', $precioServicio->codPrecioServicio)
+                                           ->distinct('tipo')
+                                           ->pluck('tipo')
+                                           ->toArray();
+
+        $tiposDisponibles = ['Diario', 'Mensual', 'Anual'];
+        $tiposDisponibles = array_diff($tiposDisponibles, $tiposRegistrados);
+
+        return Inertia::render('PrecioServicio/Edit', [
             'precioServicio' => $precioServicio,
             'servicios' => $servicios,
             'tiposDisponibles' => $tiposDisponibles,
         ]);
     }
-
-    /**
-     * Actualiza el precio de servicio existente.
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, $codPrecioServicio)
     {
-        // Validación de los datos
         $request->validate([
-            'tipo' => 'required|string|max:255',
+            'tipo' => 'required',
             'precio' => 'required|numeric',
-            'codServicio' => 'required|exists:servicio,codServicio',
         ]);
 
-        // Obtener el precio de servicio y actualizarlo
-        $precioServicio = PrecioServicio::findOrFail($id);
+        $precioServicio = PrecioServicio::findOrFail($codPrecioServicio);
+
+        if ($request->tipo !== $precioServicio->tipo) {
+            $existingPrecioServicio = PrecioServicio::where('tipo', $request->tipo)
+                                                    ->where('codServicioF', $request->codServicioF)
+                                                    ->first();
+
+            if ($existingPrecioServicio) {
+                return redirect()->back()->withInput()->withErrors(['tipo' => 'Ya existe un precio de servicio con este tipo para el servicio seleccionado.']);
+            }
+        }
+
         $precioServicio->update([
             'tipo' => $request->tipo,
             'precio' => $request->precio,
             'codServicioF' => $request->codServicio,
         ]);
-
-        // Redirigir con un mensaje de éxito
         return redirect()->route('precioServicio.index')->with('success', 'Precio de servicio actualizado exitosamente.');
     }
     public function destroy($id)
     {
-        // Obtener el precio de servicio y eliminarlo
         $precioServicio = PrecioServicio::findOrFail($id);
         $precioServicio->delete();
-
-        // Redirigir con un mensaje de éxito
         return redirect()->route('precioServicio.index')->with('success', 'Precio de servicio eliminado exitosamente.');
     }
 }

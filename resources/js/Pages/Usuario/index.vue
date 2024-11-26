@@ -7,12 +7,14 @@ import TextInput from '@/Components/TextInput.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
 
 const props = defineProps({
-    usuarios: Object
+    usuarios: Object // Asegúrate de que este objeto sea el formato correcto de la paginación
 });
 
+// Estado para manejar la visibilidad del modal y el usuario seleccionado
 const showModal = ref(false);
 const selectedUsuario = ref(null);
 
+// Función para abrir el modal de confirmación de eliminación
 const confirmDeleteUsuario = (item) => {
     selectedUsuario.value = item;
     showModal.value = true;
@@ -26,6 +28,7 @@ const deleteUsuario = () => {
     }
 };
 
+// Estado para manejar la búsqueda
 const searchTerm = ref('');
 const searchCriteria = ref('');
 
@@ -43,7 +46,7 @@ const handleSearch = () => {
 </script>
 
 <template>
-     <plantillanav/>
+    <plantillanav :userName="$page.props.auth.user.name"/>
     <AppLayout title="Gestionar Usuarios">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -53,20 +56,23 @@ const handleSearch = () => {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
+                <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+                    <div class="p-6 lg:p-8 border-gray-200 divpequeno">
                         <h1 class="text-2xl font-bold text-center mb-6">Lista de Usuarios</h1>
 
+                        <!-- Contenedor de los botones (Nuevo usuario y búsqueda) -->
                         <div class="flex justify-between items-center mb-6">
-                            <!-- Nuevo Usuario -->
+                            <!-- Nuevo usuario -->
                             <Link :href="route('usuario.create')" class="btn btn-primary inline-flex items-center space-x-2">
                                 <i class="fas fa-user-plus"></i>
                                 <span>Registrar</span>
                             </Link>
+
+                            <!-- Formulario de búsqueda -->
                             <form @submit.prevent="handleSearch" class="flex space-x-2">
                                 <select v-model="searchCriteria" class="form-select">
                                     <option value="" disabled selected>Seleccionar criterio</option>
-                                    <option value="nombreUsuario">Nombre</option>
+                                    <option value="name">Nombre</option> <!-- Cambié "nombreUsuario" por "name" -->
                                     <option value="codTipoUsuarioF">Tipo de Usuario</option>
                                 </select>
                                 <TextInput v-model="searchTerm" class="w-full" placeholder="Buscar usuario" />
@@ -77,10 +83,10 @@ const handleSearch = () => {
                             </form>
                         </div>
 
-                        <!-- Tabla de Usuarios -->
+                        <!-- Tabla de usuarios -->
                         <div class="overflow-x-auto">
                             <table class="table-auto w-full text-sm">
-                                <thead class="bg-gray-800 text-white">
+                                <thead>
                                     <tr>
                                         <th class="p-3 text-left">Código de Usuario</th>
                                         <th class="p-3 text-left">Nombre</th>
@@ -93,10 +99,14 @@ const handleSearch = () => {
                                 <tbody>
                                     <tr v-for="usuario in usuarios.data" :key="usuario.codUsuario" class="border-b">
                                         <td class="p-3">{{ usuario.codUsuario }}</td>
-                                        <td class="p-3">{{ usuario.nombreUsuario }}</td>
+                                        <td class="p-3">{{ usuario.name }}</td>
                                         <td class="p-3">{{ usuario.email }}</td>
                                         <td class="p-3">********</td>
-                                        <td class="p-3">{{ usuario.tipoUsuario?.descripcion || 'N/A' }}</td>
+                                        <td class="p-3">
+    <span v-if="usuario.tipoUsuario">{{ usuario.tipoUsuario.descripcion }}</span>
+    <span v-else>N/A</span>
+</td>
+
                                         <td class="p-3 text-center">
                                             <!-- Editar -->
                                             <Link :href="route('usuario.edit', usuario.codUsuario)" class="btn btn-warning btn-sm mx-1">
@@ -137,7 +147,7 @@ const handleSearch = () => {
                 <h1 class="text-lg font-semibold">Confirmar Eliminación</h1>
             </template>
             <template v-slot:content>
-                <p>¿Estás seguro de que deseas eliminar el usuario <strong>{{ selectedUsuario?.nombreUsuario }}</strong>?</p>
+                <p>¿Estás seguro de que deseas eliminar el usuario <strong>{{ selectedUsuario?.name }}</strong>?</p> <!-- Cambié "nombreUsuario" por "name" -->
             </template>
             <template v-slot:footer>
                 <PrimaryButton @click="deleteUsuario" class="bg-red-600 hover:bg-red-800">Eliminar</PrimaryButton>
@@ -148,21 +158,10 @@ const handleSearch = () => {
 </template>
 
 <style scoped>
-/* Estilo para mejorar la apariencia de los botones y tablas */
 .table-auto th, .table-auto td {
     text-align: left;
     vertical-align: middle;
 }
-
-.table-auto th {
-    background-color: #4B5563; /* Gray background */
-    color: #fff;
-}
-
-.table-auto tr:nth-child(even) {
-    background-color: #F3F4F6; /* Light gray rows */
-}
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -172,54 +171,7 @@ const handleSearch = () => {
     font-weight: 600;
     cursor: pointer;
 }
-
-.btn-outline-secondary {
-    background-color: #F9FAFB;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-}
-
-.btn-outline-secondary:hover {
-    background-color: #E5E7EB;
-}
-
-.btn-primary {
-    background-color: #3B82F6;
-    color: white;
-    border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-    background-color: #2563EB;
-}
-
-.btn-warning {
-    background-color: #F59E0B;
-    color: white;
-}
-
-.btn-warning:hover {
-    background-color: #D97706;
-}
-
-.btn-danger {
-    background-color: #EF4444;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #DC2626;
-}
-
-.btn-secondary {
-    background-color: #E5E7EB;
-    color: #1F2937;
-}
-
-.btn-secondary:hover {
-    background-color: #D1D5DB;
-}
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+    margin-top: calc(10px + 1rem); 
 }
 </style>

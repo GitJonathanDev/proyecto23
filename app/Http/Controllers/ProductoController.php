@@ -6,6 +6,8 @@ use App\Models\Producto;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
+
 
 class ProductoController extends Controller
 {
@@ -21,8 +23,7 @@ class ProductoController extends Controller
                 return $query->where($criterio, 'like', "%{$buscar}%");
             })
             ->with('categoria') // Eager load para la categoría relacionada
-            ->paginate(10) // Paginamos 10 productos por página
-            ->withQueryString(); // Mantiene los parámetros de la búsqueda en la URL
+            ->paginate(10);
 
         // Retornar la respuesta Inertia con los datos de productos
         return Inertia::render('Producto/Index', [
@@ -43,12 +44,14 @@ class ProductoController extends Controller
 
         $imageUrl = null;
 
+        // Subir la imagen si está presente
         if ($request->hasFile('imagen')) {
             $file = $request->file('imagen');
             $fileName = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('storage/uploads'), $fileName);
             $imageUrl = $fileName;
         }
+
         Producto::create([
             'codProducto' => $request->codProducto,
             'nombre' => $request->nombre,
@@ -71,41 +74,72 @@ class ProductoController extends Controller
             'categorias' => Categoria::all(),
         ]);
     }
-
     public function update(Request $request, $id)
     {
+        // Buscar el producto
         $producto = Producto::findOrFail($id);
-        if ($request->hasFile('imagen')) {
-            if ($producto->imagen_url) {
-                $path = public_path('storage/uploads/' . $producto->imagen_url);
-                if (file_exists($path)) {
-                    unlink($path);
-                }
-            }
     
+        // Manejo de la imagen
+        $newImageUrl = $producto->imagen_url; // Mantener la imagen actual por defecto
+    
+        if ($request->hasFile('imagen')) {
+            // Subir la nueva imagen
             $file = $request->file('imagen');
             $fileName = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('storage/uploads'), $fileName);
-            $producto->imagen_url = $fileName;
+            $newImageUrl = $fileName;
+    
+            // Eliminar la imagen antigua si existe
+            $oldImagePath = public_path('storage/uploads/' . $producto->imagen_url);
+            if ($producto->imagen_url && file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
         }
+    
+        // Actualizar el producto
         $producto->update([
+            'codProducto' => $request->codProducto,
             'nombre' => $request->nombre,
-            'descripcion' => $request->descripcion,
+            'descripcion' => $request->descripcion ?? $producto->descripcion,
             'precio' => $request->precio,
             'codCategoriaF' => $request->codCategoriaF,
+            'imagen_url' => $newImageUrl, // Actualizar con la nueva imagen si aplica
         ]);
-
+    
         // Redirigir con un mensaje de éxito
         return redirect()->route('producto.index')->with('success', 'Producto actualizado con éxito.');
     }
+    
 
-    public function destroy($id)
+
+public function destroy($id)
     {
         $producto = Producto::findOrFail($id);
-        if ($producto->imagen_url) {
-            \Storage::delete('app/public/uploads//' . $producto->imagen_url);
+
+        try {
+            DB::beginTransaction(); // Inicia una transacción
+
+            // Eliminar el producto primero
+            $producto->delete();
+
+            // Eliminar la imagen si existe
+            if ($producto->imagen_url) {
+                $imagePath = public_path('storage/uploads/' . $producto->imagen_url);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+
+            DB::commit(); // Confirma la transacción
+        } catch (\Exception $e) {
+            DB::rollBack(); // Revierte la transacción en caso de error
+            return redirect()->route('producto.index')
+                             ->with('error', 'Hubo un problema al eliminar el producto. Por favor, inténtelo de nuevo.');
         }
-        $producto->delete();
+
+        // Redirigir con un mensaje de éxito
         return redirect()->route('producto.index')->with('success', 'Producto eliminado con éxito.');
     }
+
+
 }

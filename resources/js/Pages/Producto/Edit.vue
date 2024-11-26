@@ -1,11 +1,12 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useForm, Head, Link } from '@inertiajs/vue3';
+import { ref, computed, watch } from 'vue';
+import { useForm, router } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import plantillanav from '@/Layouts/plantillanav.vue';
+import VisitaFooter from '@/Components/VisitaFooter.vue';
 
 // Recibimos los datos de producto y categorías desde el controlador
 const props = defineProps({
@@ -25,7 +26,6 @@ const form = useForm({
 
 // Para manejar la previsualización de la imagen
 const imagePreview = ref(null);
-
 const handleImageChange = (e) => {
   const file = e.target.files[0];
   if (file) {
@@ -39,23 +39,17 @@ const handleImageChange = (e) => {
   }
 };
 
-// Validación en el cliente
+// Validaciones individuales
 const validateNombre = () => form.nombre.length > 2 && form.nombre.length < 101;
 const validateDescripcion = () => form.descripcion.length > 4 && form.descripcion.length < 256;
 const validatePrecio = () => parseFloat(form.precio) > 0;
 const validateCategoria = () => form.codCategoriaF !== '';
 
-// Validación del formulario
-const isFormValid = computed(() => {
-  return (
-    validateNombre() && 
-    validateDescripcion() && 
-    validatePrecio() && 
-    validateCategoria()
-  );
-});
+// Validar formulario completo
+const validateForm = () => validateNombre() && validateDescripcion() && validatePrecio() && validateCategoria();
+watch([() => form.nombre, () => form.descripcion, () => form.precio, () => form.codCategoriaF], validateForm);
 
-// Función para manejar el envío del formulario
+// Enviar formulario
 const submit = () => {
   const formData = new FormData();
   formData.append('nombre', form.nombre);
@@ -70,16 +64,15 @@ const submit = () => {
   form.put(route('producto.update', props.producto.codProducto), {
     data: formData,
     onSuccess: () => {
-      // Redirect after success
       router.get(route('producto.index'));
-    }
+    },
   });
 };
 </script>
 
 <template>
-  <plantillanav/>
-  <AppLayout title="Modificar Producto">
+  <plantillanav :userName="$page.props.auth.user.name" />
+  <AppLayout title="Editar Producto">
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
         Editar Producto
@@ -88,78 +81,80 @@ const submit = () => {
 
     <div class="py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-          <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
-            <!-- Alerta de éxito -->
-            <div v-if="form.errors.success" class="alert alert-success">
-              {{ form.errors.success }}
-            </div>
+        <div class="overflow-hidden shadow-xl sm:rounded-lg divgrande">
+          <div class="p-6 lg:p-8 border-gray-200 divpequeno">
+            <h1 class="text-2xl font-bold text-center mb-6">Editar Producto</h1>
 
-            <!-- Errores de validación -->
-            <div v-if="form.errors.nombre" class="alert alert-danger">
-              {{ form.errors.nombre }}
-            </div>
-            <div v-if="form.errors.descripcion" class="alert alert-danger">
-              {{ form.errors.descripcion }}
-            </div>
-            <div v-if="form.errors.precio" class="alert alert-danger">
-              {{ form.errors.precio }}
-            </div>
-            <div v-if="form.errors.codCategoriaF" class="alert alert-danger">
-              {{ form.errors.codCategoriaF }}
+            <!-- Validaciones de error -->
+            <div v-if="form.errors.length" class="alert alert-danger">
+              <ul>
+                <li v-for="(error, index) in form.errors" :key="index">
+                  {{ error }}
+                </li>
+              </ul>
             </div>
 
             <!-- Formulario -->
-            <form @submit.prevent="submit">
+            <form @submit.prevent="submit" novalidate>
               <!-- Nombre -->
-              <div class="mb-3 row">
-                <InputLabel for="nombre" value="Nombre" />
+              <div class="mb-4">
+                <InputLabel for="nombre" value="Nombre" class="bb" />
                 <InputError :message="form.errors.nombre" />
                 <TextInput
                   v-model="form.nombre"
                   id="nombre"
-                  class="form-control"
+                  class="mt-1 block w-full cc"
                   placeholder="Ingrese el nombre del producto"
                   required
+                  @input="validateForm"
                 />
+                <div v-if="!validateNombre()" class="text-red-500 text-sm dd">
+                  * El nombre debe tener entre 3 y 100 caracteres.
+                </div>
               </div>
 
               <!-- Descripción -->
-              <div class="mb-3 row">
-                <InputLabel for="descripcion" value="Descripción" />
+              <div class="mb-4">
+                <InputLabel for="descripcion" value="Descripción" class="bb" />
                 <InputError :message="form.errors.descripcion" />
                 <textarea
                   v-model="form.descripcion"
                   id="descripcion"
-                  class="form-control"
+                  class="mt-1 block w-full cc"
                   placeholder="Ingrese la descripción del producto"
                   rows="3"
                   required
                 ></textarea>
+                <div v-if="!validateDescripcion()" class="text-red-500 text-sm dd">
+                  * La descripción debe tener entre 5 y 255 caracteres.
+                </div>
               </div>
 
               <!-- Precio -->
-              <div class="mb-3 row">
-                <InputLabel for="precio" value="Precio" />
+              <div class="mb-4">
+                <InputLabel for="precio" value="Precio" class="bb" />
                 <InputError :message="form.errors.precio" />
                 <TextInput
                   v-model="form.precio"
                   type="number"
                   id="precio"
-                  class="form-control"
+                  class="mt-1 block w-full cc"
                   placeholder="Ingrese el precio del producto"
                   required
                 />
+                <div v-if="!validatePrecio()" class="text-red-500 text-sm dd">
+                  * El precio debe ser un número mayor a 0.
+                </div>
               </div>
 
               <!-- Categoría -->
-              <div class="mb-3 row">
-                <InputLabel for="codCategoriaF" value="Categoría" />
+              <div class="mb-4">
+                <InputLabel for="codCategoriaF" value="Categoría" class="bb" />
                 <InputError :message="form.errors.codCategoriaF" />
                 <select
                   v-model="form.codCategoriaF"
                   id="codCategoriaF"
-                  class="form-select"
+                  class="mt-1 block w-full cc"
                   required
                 >
                   <option value="">Seleccione una categoría</option>
@@ -171,47 +166,50 @@ const submit = () => {
                     {{ categoria.nombre }}
                   </option>
                 </select>
+                <div v-if="!validateCategoria()" class="text-red-500 text-sm dd">
+                  * Seleccione una categoría válida.
+                </div>
               </div>
 
               <!-- Imagen -->
-              <div class="mb-3 row">
-                <InputLabel for="imagen" value="Cambiar Imagen" />
-                <input
-                  type="file"
-                  id="imagen"
-                  class="form-control"
-                  accept="image/*"
-                  @change="handleImageChange"
-                />
-                <img
-                  v-if="imagePreview"
-                  :src="imagePreview"
-                  alt="Vista previa de la imagen"
-                  class="img-fluid mt-2"
-                />
-              </div>
+<div class="mb-4">
+  <InputLabel for="imagen" value="Imagen" class="bb" />
+  <input
+    type="file"
+    id="imagen"
+    class="form-control"
+    accept="image/*"
+    @change="handleImageChange"  
+  />
+  <img
+    v-if="imagePreview"
+    :src="imagePreview"
+    alt="Vista previa de la imagen"
+    class="img-fluid mt-2"
+  />
+</div>
 
-              <!-- Imagen actual -->
-              <div class="mb-3 row">
-                <InputLabel value="Imagen Actual" />
-                <div v-if="props.producto.imagen_url">
-                  <img
-                    :src="`/storage/uploads/${props.producto.imagen_url}`"
-                    alt="Imagen del producto"
-                    width="200"
-                  />
-                </div>
-                <div v-else>No tiene imagen actual</div>
-              </div>
+<!-- Imagen actual -->
+<div class="mb-4">
+  <InputLabel value="Imagen Actual" class="bb" />
+  <div v-if="props.producto.imagen_url">
+    <img
+      :src="`/storage/uploads/${props.producto.imagen_url}`"
+      alt="Imagen actual"
+      width="200"
+    />
+  </div>
+  <div v-else class="text-gray-500">No hay imagen actual.</div>
+</div>
 
               <!-- Botones -->
               <div class="text-center mt-4">
-                <Link href="{{ route('producto.index') }}" class="btn btn-secondary me-2">
+                <Link :href="route('producto.index')" class="btn btn-secondary me-3">
                   <i class="fas fa-arrow-left"></i> Atrás
                 </Link>
                 <PrimaryButton
-                  :disabled="!isFormValid || form.processing"
                   class="btn btn-primary"
+                  :disabled="!validateForm() || form.processing"
                 >
                   <i class="fas fa-pencil-alt"></i> Modificar
                 </PrimaryButton>
@@ -220,11 +218,13 @@ const submit = () => {
           </div>
         </div>
       </div>
+      <VisitaFooter />
     </div>
   </AppLayout>
 </template>
-<style>
+
+<style scoped>
 .py-12 {
-  margin-top: calc(60px + 1rem); 
+  margin-top: calc(10px + 1rem);
 }
 </style>
