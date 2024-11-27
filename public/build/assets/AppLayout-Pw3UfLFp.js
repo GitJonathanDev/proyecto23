@@ -1,0 +1,1 @@
+import{o as t,e as s,a}from"./app-C6Ljm75g.js";const n={class:"min-h-screen bg-gray-100 flex items-center justify-center"},i={__name:"AppLayout",props:{title:String},setup(r){return(o,e)=>(t(),s("div",n,e[0]||(e[0]=[a("h1",{class:"text-4xl font-bold text-gray-800"}," ¡Bienvenido a nuestra aplicacióneee! ",-1)])))}};export{i as _};
